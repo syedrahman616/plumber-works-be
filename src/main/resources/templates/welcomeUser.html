@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>New User Registration on PGNEET©</title>
+  <style>
+    h1 span {
+      color: red;
+    }
+
+    .subscription-line {
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    span.signature {
+      color: green;
+      font-weight: bold;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <h1><span th:text="${subject}">New User Registration on PGNEET©</span></h1>
+    <p>Hello,</p>
+
+    <p>Thank you for registering with PGNEET©. To finish signing up, you just need to confirm that we got your email right.</p>
+    <br />
+    To confirm your email, please click this link:
+    <br />
+    <span th:text="${url}"></span>
+    </p>
+    <p>Warm regards,<br> <span style="font-weight: bold; text-decoration: none; color: green;">PGNEET© Team</span></p>
+    <!-- Adding the image link -->
+    <a href="https://pgneet-public.s3.ap-south-1.amazonaws.com/Logo.png" target="_blank">
+      <img src="https://pgneet-public.s3.ap-south-1.amazonaws.com/Logo.png" alt="PGNEET Logo" style="max-width: 20%; max-height: 15%;">
+    </a>
+  </div>
+</body>
+
+</html>

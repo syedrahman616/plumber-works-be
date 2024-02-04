@@ -1,0 +1,42 @@
+{"properties": [
+  {
+    "name": "app.auth.tokenSecret",
+    "type": "java.lang.String",
+    "description": "A description for 'app.auth.tokenSecret'"
+  },
+  {
+    "name": "app.auth.tokenExpirationMsec",
+    "type": "java.lang.String",
+    "description": "A description for 'app.auth.tokenExpirationMsec'"
+  },
+  {
+    "name": "mail.host",
+    "type": "java.lang.String",
+    "description": "A description for 'mail.host'"
+  },
+  {
+    "name": "mail.username",
+    "type": "java.lang.String",
+    "description": "A description for 'mail.username'"
+  },
+  {
+    "name": "mail.port",
+    "type": "java.lang.String",
+    "description": "A description for 'mail.port'"
+  },
+  {
+    "name": "mail.password",
+    "type": "java.lang.String",
+    "description": "A description for 'mail.password'"
+  },
+  {
+    "name": "app.payment.razorpay.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'app.payment.razorpay.secret'"
+  },
+  {
+    "name": "app.payment.razorpay.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'app.payment.razorpay.secret'"
+  }
+]}

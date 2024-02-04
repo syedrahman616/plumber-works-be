@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    h1 span {
+      color: red; /* Change the color to black */
+    }
+
+    p, li, a {
+      color: black; /* Change the color to black for paragraphs, list items, and links */
+    }
+
+  </style>
+</head>
+
+<body>
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <h1><span th:text="${subject}"></span></h1>
+
+    <p>Dear [<span th:text="${usrName}"></span>],</p>
+
+    <p>We are thrilled to welcome you to the PGNEET© community! Your journey towards success in medical postgraduate
+      entrance exams has just received a valuable boost.</p>
+
+    <p>At PGNEET©, we are committed to providing top-notch resources and support to help you excel in exams like NEET
+      PG, INI CET, DNB PDCET, and FMGE. We understand the challenges you face, and we're here to make your preparation
+      as effective and efficient as possible.</p>
+
+    <p>As a new subscriber, you now have access to:</p>
+
+    <ul>
+      <li>Comprehensive Question Bank aligned with the latest exam trends.</li>
+      <li>Timed Mock Tests to simulate real exam conditions.</li>
+      <li>High-yield notes supported by the latest evidence.</li>
+      <li>Personalized performance analysis to pinpoint your strengths and weaknesses.</li>
+    </ul>
+
+    <p>To get started, simply log in to your account and explore the wealth of resources at your fingertips. If you
+      have any questions or need assistance at any point, don't hesitate to reach out to our dedicated support team
+      at <a href="mailto:support@pgneet.net">support@pgneet.net</a>. We are here to ensure your success.</p>
+
+    <p>Once again, welcome to PGNEET©. We're excited to accompany you on this educational journey and help you achieve
+      your goals. Prepare with confidence, and let's strive for excellence together!</p>
+
+    <p>Best regards,</p>
+
+    <p>PGNEET© Team</p>
+
+    <br />
+    <br />
+      <a href="https://pgneet-public.s3.ap-south-1.amazonaws.com/Logo.png" target="_blank">
+      <img src="https://pgneet-public.s3.ap-south-1.amazonaws.com/Logo.png" alt="PGNEET Logo" style="max-width: 20%; max-height: 15%;">
+    </a>
+  </div>
+</body>
+
+</html>

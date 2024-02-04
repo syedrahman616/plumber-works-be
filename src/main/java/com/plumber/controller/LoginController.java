@@ -30,7 +30,6 @@ import com.plumber.exception.APIException;
 import com.plumber.response.APIResponse;
 import com.plumber.response.AuthResponse;
 import com.plumber.security.TokenProvider;
-import com.plumber.security.UserPrincipal;
 import com.plumber.utils.ResponseBuilder;
 import com.plumber.validators.SignupValidator;
 

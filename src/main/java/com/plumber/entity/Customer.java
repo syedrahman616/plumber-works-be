@@ -30,4 +30,6 @@ public class Customer {
 	private String mobile;
 	@Transient
 	private String flag;
+	@Transient
+	private String userEmail;
 }

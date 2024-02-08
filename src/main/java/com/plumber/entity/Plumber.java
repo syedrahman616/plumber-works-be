@@ -9,6 +9,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import lombok.Data;
+
 @Data
 @Entity
 @Table(name = "plumber")
@@ -31,7 +32,9 @@ public class Plumber {
 	@Column(name = "mobile", nullable = false)
 	private String mobile;
 	@Column(name = "availability", nullable = false)
-	private boolean	availability;
+	private boolean availability;
 	@Transient
 	private String flag;
+	@Transient
+	private String userEmail;
 }

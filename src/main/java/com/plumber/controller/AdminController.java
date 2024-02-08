@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plumber.dao.UserRepository;
+import com.plumber.entity.Customer;
 import com.plumber.entity.Plumber;
 import com.plumber.entity.PlumberUser;
 import com.plumber.exception.APIException;
@@ -34,6 +35,18 @@ public class AdminController {
 		if (userprincipal.getId() > 0 && user.get().getUserRole().equalsIgnoreCase("Admin")) {
 			List<Plumber> response = repo.plumberAdmin();
 			return ResponseBuilder.build("Success", "Plumber List", response);
+		}
+		return ResponseBuilder.build("Failure", "Your Are Not Authorized Person", null);
+	}
+	
+	@GetMapping("/admin-customer")
+	public APIResponse<Object> customerAdmin() throws APIException {
+		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		Optional<PlumberUser> user = usrRepo.findById(userprincipal.getId());
+		if (userprincipal.getId() > 0 && user.get().getUserRole().equalsIgnoreCase("Admin")) {
+			List<Customer> response = repo.customerAdmin();
+			return ResponseBuilder.build("Success", "Customer List", response);
 		}
 		return ResponseBuilder.build("Failure", "Your Are Not Authorized Person", null);
 	}

@@ -16,5 +16,10 @@ public class SignupRequest {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private String email;
 	private String userRole;
+	private String fullName;
+	private String address;
+	private String city;
+	private String mobile;
+	private String postCode;
 
 }

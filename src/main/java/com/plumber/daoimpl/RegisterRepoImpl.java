@@ -3,11 +3,16 @@ package com.plumber.daoimpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import com.plumber.dao.RegisterRepository;
+import com.plumber.dao.UserRepository;
+import com.plumber.dao.UserprofileRepository;
 import com.plumber.entity.SignupRequest;
+import com.plumber.entity.UserProfile;
 import com.plumber.exception.APIException;
 import com.plumber.security.TokenProvider;
 
@@ -23,6 +28,12 @@ public class RegisterRepoImpl implements RegisterRepository {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
+	@Autowired
+	UserRepository userRepo;
+
+	@Autowired
+	UserprofileRepository profileRepo;
+
 	@Override
 	public boolean userSignUp(SignupRequest request) throws APIException {
 		MapSqlParameterSource param = new MapSqlParameterSource();
@@ -32,13 +43,21 @@ public class RegisterRepoImpl implements RegisterRepository {
 		if (count == 0) {
 			param.addValue("password", request.getPassword());
 			param.addValue("userRole", request.getUserRole());
-			namedJdbcTemplate.update(
-					"insert into user (user_name,password,user_email,user_role,status,verified,created_date) "
-							+ "value(:email,:password,:email,:userRole,true,true,now())",
-					param);
+			KeyHolder key = new GeneratedKeyHolder();
+			namedJdbcTemplate
+					.update("insert into user (user_name,password,user_email,user_role,status,verified,created_date) "
+							+ "value(:email,:password,:email,:userRole,true,true,now())", param, key);
+			long userId = key.getKey().longValue();
+			UserProfile obj = new UserProfile();
+			obj.setAddress(request.getAddress());
+			obj.setFullName(request.getFullName());
+			obj.setCity(request.getCity());
+			obj.setPostCode(request.getPostCode());
+			obj.setMobile(request.getMobile());
+			profileRepo.updateProfile(obj, userId);
 			return true;
 		} else {
-		 throw new APIException("21", "You Are Already Register with us.");
+			throw new APIException("21", "You Are Already Register with us.");
 		}
 	}
 

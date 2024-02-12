@@ -34,7 +34,8 @@ public class UserDaoImpl implements UserprofileRepository {
 			if ("customer".equalsIgnoreCase(user.get().getUserRole())) {
 				Customer obj = new Customer();
 				obj.setCustomerId(id);
-				obj.setFullName(request.getFullName());
+				obj.setFirstName(request.getFirstName());
+				obj.setLastName(request.getLastName());
 				obj.setAddress(request.getAddress());
 				obj.setCity(request.getCity());
 				obj.setPostCode(request.getPostCode());
@@ -43,7 +44,8 @@ public class UserDaoImpl implements UserprofileRepository {
 			} else if ("plumber".equalsIgnoreCase(user.get().getUserRole())) {
 				Plumber obj = new Plumber();
 				obj.setPlumberId(id);
-				obj.setFullName(request.getFullName());
+				obj.setFirstName(request.getFirstName());
+				obj.setLastName(request.getLastName());
 				obj.setAddress(request.getAddress());
 				obj.setCity(request.getCity());
 				obj.setPostCode(request.getPostCode());
@@ -61,7 +63,8 @@ public class UserDaoImpl implements UserprofileRepository {
 			if ("customer".equalsIgnoreCase(user.get().getUserRole())) {
 				Optional<Customer> customer = customerRepo.findByCustomerId(id);
 				obj.setId(customer.get().getId());
-				obj.setFullName(customer.get().getFullName());
+				obj.setFirstName(customer.get().getFirstName());
+				obj.setLastName(customer.get().getLastName());
 				obj.setAddress(customer.get().getAddress());
 				obj.setCity(customer.get().getCity());
 				obj.setPostCode(customer.get().getPostCode());
@@ -69,7 +72,8 @@ public class UserDaoImpl implements UserprofileRepository {
 			} else if ("plumber".equalsIgnoreCase(user.get().getUserRole())) {
 				Optional<Plumber> plumber = plumberRepo.findByPlumberId(id);
 				obj.setId(plumber.get().getId());
-				obj.setFullName(plumber.get().getFullName());
+				obj.setFirstName(plumber.get().getFirstName());
+				obj.setLastName(plumber.get().getLastName());
 				obj.setAddress(plumber.get().getAddress());
 				obj.setCity(plumber.get().getCity());
 				obj.setPostCode(plumber.get().getPostCode());

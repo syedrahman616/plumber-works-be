@@ -50,12 +50,13 @@ public class RegisterRepoImpl implements RegisterRepository {
 			long userId = key.getKey().longValue();
 			UserProfile obj = new UserProfile();
 			obj.setAddress(request.getAddress());
-			obj.setFullName(request.getFullName());
+			obj.setFirstName(request.getFirstName());
+			obj.setLastName(request.getLastName());
 			obj.setCity(request.getCity());
 			obj.setPostCode(request.getPostCode());
 			obj.setMobile(request.getMobile());
 			profileRepo.updateProfile(obj, userId);
-			return true;
+			return true;         
 		} else {
 			throw new APIException("21", "You Are Already Register with us.");
 		}

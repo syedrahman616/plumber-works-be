@@ -21,8 +21,10 @@ public class Plumber {
 	private long plumberId;
 	@Column(name = "skill_id", nullable = false)
 	private long skillId;
-	@Column(name = "full_name")
-	private String fullName;
+	@Column(name = "first_name")
+	private String firstName;
+	@Column(name = "last_name")
+	private String lastName;
 	@Column(name = "address", nullable = false)
 	private String address;
 	@Column(name = "city", nullable = false)

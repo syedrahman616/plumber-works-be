@@ -11,7 +11,8 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserProfile {
 	private long id;
-	private String fullName;
+	private String firstName;
+	private String lastName;
 	private String address;
 	private String city;
 	private String postCode;

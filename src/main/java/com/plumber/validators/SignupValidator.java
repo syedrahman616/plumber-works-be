@@ -15,22 +15,18 @@ public class SignupValidator {
 		Map<String, String> errorMapper = new HashMap<>();
 		boolean errorFound = false;
 		if ((StringUtils.isEmpty(request.getEmail())) || (StringUtils.isEmpty(request.getPassword()))) {
-			
-//			  if ((StringUtils.isEmpty(request.getFullName())) ||
-//			  (StringUtils.isEmpty(request.getEmail())) ||
-//			  (StringUtils.isEmpty(request.getPassword()))) {
-//			 
-			errorFound = true;
-			errorMapper.put("Registration", ErrorMessages.REGISTRATION_FAILED);
-			return errorMapper;
-		}
 
-		/*
-		 * if (!ValidatorUtils.fullnameValidator(request.getFullName())) {
-		 * errorMapper.put("Name", ErrorMessages.NAME_INVALID); }
-		 */
-		if (!ValidatorUtils.emailValidator(request.getEmail())) {
-			errorMapper.put("Email", ErrorMessages.EMAIL_INVALID);
+			if ((StringUtils.isEmpty(request.getFirstName())) || (StringUtils.isEmpty(request.getEmail()))
+					|| (StringUtils.isEmpty(request.getPassword()))) {
+				errorFound = true;
+				errorMapper.put("Registration", ErrorMessages.REGISTRATION_FAILED);
+				return errorMapper;
+			}
+		}
+		if (!ValidatorUtils.fullnameValidator(request.getFirstName())) {
+			errorMapper.put("First Name", ErrorMessages.FIRST_NAME);
+		} else if (!ValidatorUtils.mobileValidator(request.getMobile())) {
+			errorMapper.put("mobile validation", ErrorMessages.MOBILE_INVALID);
 		}
 		return errorMapper;
 	}

@@ -6,6 +6,8 @@ import java.util.Optional;
 import javax.mail.MessagingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -27,10 +29,9 @@ import com.plumber.entity.PlumberUser;
 import com.plumber.entity.SignupRequest;
 import com.plumber.entity.TokenCreate;
 import com.plumber.exception.APIException;
-import com.plumber.response.APIResponse;
 import com.plumber.response.AuthResponse;
 import com.plumber.security.TokenProvider;
-import com.plumber.utils.ResponseBuilder;
+import com.plumber.security.UserPrincipal;
 import com.plumber.validators.SignupValidator;
 
 @RestController
@@ -53,7 +54,7 @@ public class LoginController {
 	private RegisterRepository repo;
 
 	@PostMapping(path = Constants.CONTEXT_AUTH + "/signup") //
-	public APIResponse<Object> userSigUp(@RequestBody SignupRequest request)
+	public ResponseEntity<Object> userSigUp(@RequestBody SignupRequest request)
 			throws APIException, MessagingException, JsonMappingException, JsonProcessingException {
 		Map<String, String> errorMapper = SignupValidator.validate(request);
 		String tempPwd = request.getPassword();
@@ -66,14 +67,15 @@ public class LoginController {
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			TokenCreate token = tokenProvider.createToken(authentication);
 			AuthResponse authResponse = new AuthResponse(token.getToken());
-			return ResponseBuilder.build("Success", "User Successfully Registered", authResponse);
+			authResponse.setUsrRole(request.getUserRole());
+			return ResponseEntity.status(442).body(authResponse);
 		} else {
-			return ResponseBuilder.build("Error", null, errorMapper);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMapper);
 		}
 	}
 
 	@PostMapping(path = Constants.CONTEXT_AUTH + "/login")
-	public APIResponse<Object> authenticateUser(@RequestBody LoginRequest loginRequest) throws APIException {
+	public ResponseEntity<Object> authenticateUser(@RequestBody LoginRequest loginRequest) throws APIException {
 		TokenCreate token = null;
 		try {
 			Optional<PlumberUser> usr = userRepo.findByEmail(loginRequest.getEmail());
@@ -82,12 +84,16 @@ public class LoginController {
 						new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 				token = tokenProvider.createToken(authentication);
+			} else {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You Are not Register with us.");
 			}
 		} catch (AuthenticationException e) {
-			return ResponseBuilder.build("Failure", "Invalid credentials", null);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Credentials");
 		}
+		Optional<PlumberUser> usr = userRepo.findByEmail(loginRequest.getEmail());
 		AuthResponse authResponse = new AuthResponse(token.getToken());
-		return ResponseBuilder.build("Success", "Login Successful", authResponse);
+		authResponse.setUsrRole(usr.get().getUserRole());
+		return ResponseEntity.status(442).body(authResponse);
 	}
 
 }

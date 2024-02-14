@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ValidatorUtils {
-	
+
 	public static boolean emailValidator(String eMail) {
 		String regex = "^([_a-zA-Z0-9-]+(\\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*(\\.[a-zA-Z]{1,6}))?$";
 		Pattern pattern = Pattern.compile(regex);
@@ -24,24 +24,25 @@ public class ValidatorUtils {
 		}
 		return true;
 	}
-	
-	public static boolean fullnameValidator(String value)
-	{
+
+	public static boolean fullnameValidator(String value) {
 		if (value.matches(".*\\d.*") == true) {
 			return false;
 		}
 		return true;
+	}
+
+	public static boolean mobileValidator(String value) {
+		if (value == null) {
+			return false;
 		}
-	public static boolean mobileValidator(String value)
-	{
 		String regex = "\\d{10}";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(value);
-		if(!matcher.matches()) {
+		if (!matcher.matches()) {
 			return false;
 		}
 		return true;
-		}
+	}
 
 }
-

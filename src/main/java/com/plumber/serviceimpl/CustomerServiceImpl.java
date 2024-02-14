@@ -8,16 +8,23 @@ import com.plumber.entity.Customer;
 import com.plumber.exception.APIException;
 import com.plumber.response.APIResponse;
 import com.plumber.service.CustomerService;
+
 @Service
-public class CustomerServiceImpl implements CustomerService{
-	
+public class CustomerServiceImpl implements CustomerService {
+
 	@Autowired
 	CustomerRepository repo;
 
 	@Override
 	public APIResponse<Object> customerProfile(Customer request, Long id) throws APIException {
-		 APIResponse<Object> response = repo.customerProfile(request,id);
-		 return response;
+		APIResponse<Object> response = repo.customerProfile(request, id);
+		return response;
+	}
+
+	@Override
+	public APIResponse<Object> Jobs(com.plumber.entity.Jobs request, Long id) throws APIException {
+
+		return repo.job(request, id);
 	}
 
 }

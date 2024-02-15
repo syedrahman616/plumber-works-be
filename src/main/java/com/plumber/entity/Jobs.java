@@ -12,7 +12,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "job")
+//@Table(name = "job")
 public class Jobs {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,8 +37,8 @@ public class Jobs {
 	private int hours;
 	@Column(name = "rate_per_hour", nullable = false)
 	private int ratePerHour;
-	@Column(name = "fixed_price", nullable = false)
-	private int fixedPrice;
+//	@Column(name = "fixed_price", nullable = false)
+//	private int fixedPrice;
 	@Transient
 	private String flag;
 }

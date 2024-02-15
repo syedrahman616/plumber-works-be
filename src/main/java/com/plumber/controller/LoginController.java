@@ -31,7 +31,6 @@ import com.plumber.entity.TokenCreate;
 import com.plumber.exception.APIException;
 import com.plumber.response.AuthResponse;
 import com.plumber.security.TokenProvider;
-import com.plumber.security.UserPrincipal;
 import com.plumber.validators.SignupValidator;
 
 @RestController
@@ -67,7 +66,7 @@ public class LoginController {
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			TokenCreate token = tokenProvider.createToken(authentication);
 			AuthResponse authResponse = new AuthResponse(token.getToken());
-			authResponse.setUsrRole(request.getUserRole());
+			authResponse.setUserRole(request.getUserRole());
 			return ResponseEntity.status(442).body(authResponse);
 		} else {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMapper);
@@ -92,7 +91,7 @@ public class LoginController {
 		}
 		Optional<PlumberUser> usr = userRepo.findByEmail(loginRequest.getEmail());
 		AuthResponse authResponse = new AuthResponse(token.getToken());
-		authResponse.setUsrRole(usr.get().getUserRole());
+		authResponse.setUserRole(usr.get().getUserRole());
 		return ResponseEntity.status(442).body(authResponse);
 	}
 

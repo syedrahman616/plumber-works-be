@@ -12,11 +12,11 @@ import lombok.Data;
 
 @Data
 @Entity
-//@Table(name = "job")
+@Table(name = "job")
 public class Jobs {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long jobId;
+	private long id;
 	@Column(name = "customer_id", nullable = false)
 	private long customerId;
 	@Column(name = "plumber_id", nullable = false)

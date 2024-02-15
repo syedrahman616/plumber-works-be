@@ -71,17 +71,17 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 			jobRepo.save(request);
 			response = ResponseBuilder.build("Success", "Edited Successfully", null);
 		} else if (user.isPresent() && request.getFlag().equalsIgnoreCase("get")) {
-			Optional<Jobs> job = jobRepo.findById(request.getJobId());
+			Optional<Jobs> job = jobRepo.findById(request.getId());
 			if (job.isPresent()) {
-				Optional<Customer> obj = customerRepo.findById(request.getJobId());
+				Optional<Customer> obj = customerRepo.findById(request.getId());
 				response = ResponseBuilder.build("Success", "Plumber Details", obj);
 			} else {
 				throw new APIException("21", "Invalid Data.");
 			}
 		} else if (user.isPresent() && request.getFlag().equalsIgnoreCase("delete")) {
-			Optional<Jobs> job = jobRepo.findById(request.getJobId());
+			Optional<Jobs> job = jobRepo.findById(request.getId());
 			if (job.isPresent()) {
-				customerRepo.deleteById(request.getJobId());
+				customerRepo.deleteById(request.getId());
 				response = ResponseBuilder.build("Success", "Deleted Successfully", null);
 			} else {
 				throw new APIException("21", "Invalid Data.");

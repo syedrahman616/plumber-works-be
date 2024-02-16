@@ -1,6 +1,8 @@
 package com.plumber.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,14 +26,14 @@ public class PlumberController {
 	PlumberService repo;
 
 	@PostMapping("/plumber-profile")
-	public APIResponse<Object> updatePlumber(@RequestBody Plumber request) throws APIException {
+	public ResponseEntity<Object>  updatePlumber(@RequestBody Plumber request) throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		if (userprincipal.getId() > 0) {
 			APIResponse<Object> response = repo.plumberProfile(request, userprincipal.getId());
-			return response;
+			return ResponseEntity.status(HttpStatus.OK).body(response);
 		}
-		return ResponseBuilder.build("Failure", "Your Are Not Authorized Person", null);
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Your Are Not Authorized Person.");
 	}
 	
 	@PostMapping("/add-skill")

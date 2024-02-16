@@ -30,9 +30,9 @@ public class CustomerController {
 				.getPrincipal();
 		if (userprincipal.getId() > 0) {
 			APIResponse<Object> response = repo.customerProfile(request, userprincipal.getId());
-			return ResponseEntity.status(442).body(response);
+			return ResponseEntity.status(200).body(response);
 		}
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You Are Not Authorized Person.");
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Your Are Not Authorized Person.");
 	}
 	
 	@PostMapping("/add-job")
@@ -41,9 +41,9 @@ public class CustomerController {
 				.getPrincipal();
 		if (userprincipal.getId() > 0) {
 			APIResponse<Object> response = repo.Jobs(request, userprincipal.getId());
-			return ResponseEntity.status(442).body(response);
+			return ResponseEntity.status(200).body(response);
 		}
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You Are Not Authorized Person.");
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Your Are Not Authorized Person.");
 	}
 	
 	

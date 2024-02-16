@@ -67,9 +67,9 @@ public class LoginController {
 			TokenCreate token = tokenProvider.createToken(authentication);
 			AuthResponse authResponse = new AuthResponse(token.getToken());
 			authResponse.setUserRole(request.getUserRole());
-			return ResponseEntity.status(442).body(authResponse);
+			return ResponseEntity.status(HttpStatus.OK).body(authResponse);
 		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMapper);
+			return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errorMapper);
 		}
 	}
 
@@ -84,15 +84,15 @@ public class LoginController {
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 				token = tokenProvider.createToken(authentication);
 			} else {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You Are not Register with us.");
+				return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("You Are not Register with us.");
 			}
 		} catch (AuthenticationException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Credentials");
+			return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid Credentials");
 		}
 		Optional<PlumberUser> usr = userRepo.findByEmail(loginRequest.getEmail());
 		AuthResponse authResponse = new AuthResponse(token.getToken());
 		authResponse.setUserRole(usr.get().getUserRole());
-		return ResponseEntity.status(442).body(authResponse);
+		return ResponseEntity.status(HttpStatus.OK).body(authResponse);
 	}
 
 }

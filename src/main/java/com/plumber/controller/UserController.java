@@ -30,27 +30,32 @@ public class UserController {
 	UserService repo;
 
 	@PostMapping("/update-profile")
-	public ResponseEntity<Object> customer(@RequestBody UserProfile request) throws APIException {
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> customer(@RequestBody UserProfile request)
+			throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		Optional<PlumberUser> user = usrRepo.findById(userprincipal.getId());
 		if (user.isPresent()) {
 			repo.userProfile(request, userprincipal.getId());
-			return ResponseEntity.status(HttpStatus.OK).body("Updated Successfully.");
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "Updated Successfully", null));
 		}
-		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Your Are Not Authorized Person.");
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person.", null));
 	}
 
 	@GetMapping("/get-profile")
-	public ResponseEntity<Object> getProfile() throws APIException {
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> getProfile() throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		Optional<PlumberUser> user = usrRepo.findById(userprincipal.getId());
 		if (user.isPresent()) {
 			UserProfile response = repo.getProfile(userprincipal.getId());
-			return ResponseEntity.status(HttpStatus.OK).body(response);
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "Profile Details", response));
 		}
-		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Your Are Not Authorized Person.");
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person.", null));
 	}
 
 }

@@ -58,8 +58,7 @@ public class RegisterRepoImpl implements RegisterRepository {
 			profileRepo.updateProfile(obj, userId);
 			return true;         
 		} else {
-			throw new APIException("21", "You Are Already Register with us.");
+			throw new APIException("422", "You Are Already Register with us.");
 		}
 	}
-
 }

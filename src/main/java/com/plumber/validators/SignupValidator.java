@@ -1,58 +1,34 @@
 package com.plumber.validators;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.thymeleaf.util.StringUtils;
 
 import com.plumber.constants.ErrorMessages;
 import com.plumber.entity.SignupRequest;
-import com.plumber.entity.SocialSigninRequest;
 import com.plumber.validators.utils.ValidatorUtils;
 
 public class SignupValidator {
-	public static Map<String, String> validate(SignupRequest request) {
-		Map<String, String> errorMapper = new HashMap<>();
-		boolean errorFound = false;
-		if ((StringUtils.isEmpty(request.getEmail())) || (StringUtils.isEmpty(request.getPassword()))) {
-
-			if ((StringUtils.isEmpty(request.getFirstName())) || (StringUtils.isEmpty(request.getEmail()))
-					|| (StringUtils.isEmpty(request.getPassword()))) {
-				errorFound = true;
-				errorMapper.put("Registration", ErrorMessages.REGISTRATION_FAILED);
-				return errorMapper;
-			}
+	public static Map<String, List<String>> validate(SignupRequest request) {
+		Map<String, List<String>> errorMapper = new HashMap<>();
+		if (StringUtils.isEmpty(request.getEmail()) || StringUtils.isEmpty(request.getPassword())) {
+			errorMapper.put("Registration", List.of(ErrorMessages.REGISTRATION_FAILED));
 		}
-		if (!ValidatorUtils.fullnameValidator(request.getFirstName())) {
-			errorMapper.put("First Name", ErrorMessages.FIRST_NAME);
-		} else if (!ValidatorUtils.mobileValidator(request.getMobile())) {
-			errorMapper.put("mobile validation", ErrorMessages.MOBILE_INVALID);
-		}
-		return errorMapper;
-	}
-
-	public static Map<String, String> socialvalidate(SocialSigninRequest request) {
-		Map<String, String> errorMapper = new HashMap<>();
-		boolean errorFound = false;
-		if ((StringUtils.isEmpty(request.getEmail()))) {
-			/*
-			 * if ((StringUtils.isEmpty(request.getFullName())) ||
-			 * (StringUtils.isEmpty(request.getEmail())) ||
-			 * (StringUtils.isEmpty(request.getPassword()))) {
-			 */
-			errorFound = true;
-			errorMapper.put("Registration", ErrorMessages.REGISTRATION_FAILED);
-			return errorMapper;
-		}
-
-		/*
-		 * if (!ValidatorUtils.fullnameValidator(request.getFullName())) {
-		 * errorMapper.put("Name", ErrorMessages.NAME_INVALID); }
-		 */
 		if (!ValidatorUtils.emailValidator(request.getEmail())) {
-			errorMapper.put("Email", ErrorMessages.EMAIL_INVALID);
+			errorMapper.put("email", List.of(ErrorMessages.EMAIL_INVALID));
+		}
+		if (!ValidatorUtils.firstNameValidator(request.getFirstName())) {
+			errorMapper.put("first_Name", List.of(ErrorMessages.FIRST_NAME));
+		}
+		if (!ValidatorUtils.firstNameValidator(request.getLastName())) {
+			errorMapper.put("last_name", List.of(ErrorMessages.LAST_NAME));
+		}
+		if (!ValidatorUtils.mobileValidator(request.getMobile())) {
+			errorMapper.put("mobile", List.of(ErrorMessages.MOBILE_INVALID));
 		}
 		return errorMapper;
 	}
-
 }

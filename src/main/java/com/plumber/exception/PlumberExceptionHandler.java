@@ -30,13 +30,13 @@ public class PlumberExceptionHandler {
 	MessageSource message;
 
 	@ExceptionHandler(APIException.class)
-	@ResponseStatus(HttpStatus.OK)
+	@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
 	public @ResponseBody APIError handleAPIException(APIException exception) {
 		return exception.getApiError();
 	}
 	
 	@ExceptionHandler(ServletException.class)
-	@ResponseStatus(HttpStatus.OK)
+	@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
 	public @ResponseBody APIError handleServletException(ServletException exception) {
 		APIError apiError = new APIError();
 		Error error = new Error();
@@ -47,13 +47,13 @@ public class PlumberExceptionHandler {
 	}
 
 	@ExceptionHandler(InvalidTokenException.class)
-	@ResponseStatus(HttpStatus.OK)
+	@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
 	public @ResponseBody APIError handleTokenException(InvalidTokenException exception) {
 		return exception.getApiError();
 	}
 
 	@ExceptionHandler(SQLException.class)
-	@ResponseStatus(HttpStatus.OK)
+	@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
 	public @ResponseBody APIError handleException(Exception exception) {
 		APIException ex = new APIException("001", "Something went wrong. please try again");
 		MailRequest mailObject = new MailRequest();

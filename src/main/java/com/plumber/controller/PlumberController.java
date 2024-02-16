@@ -26,16 +26,18 @@ public class PlumberController {
 	PlumberService repo;
 
 	@PostMapping("/plumber-profile")
-	public ResponseEntity<Object>  updatePlumber(@RequestBody Plumber request) throws APIException {
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> updatePlumber(@RequestBody Plumber request)
+			throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		if (userprincipal.getId() > 0) {
 			APIResponse<Object> response = repo.plumberProfile(request, userprincipal.getId());
 			return ResponseEntity.status(HttpStatus.OK).body(response);
 		}
-		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Your Are Not Authorized Person.");
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
 	}
-	
+
 	@PostMapping("/add-skill")
 	public APIResponse<Object> addSkill(@RequestBody Skill request) throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
@@ -46,6 +48,5 @@ public class PlumberController {
 		}
 		return ResponseBuilder.build("Failure", "Your Are Not Authorized Person", null);
 	}
-	
-	
+
 }

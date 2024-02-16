@@ -25,11 +25,11 @@ public class ValidatorUtils {
 		return true;
 	}
 
-	public static boolean fullnameValidator(String value) {
-		if (value.matches(".*\\d.*") == true) {
-			return false;
+	public static boolean firstNameValidator(String value) {
+		if (value != null && !value.trim().isEmpty() && !value.matches(".*\\d.*")) {
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	public static boolean mobileValidator(String value) {

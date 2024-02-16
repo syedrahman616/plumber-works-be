@@ -31,27 +31,30 @@ public class AdminController {
 	AdminService repo;
 
 	@GetMapping("/admin-plumber")
-	public ResponseEntity<Object> plumberAdmin() throws APIException {
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> plumberAdmin() throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		Optional<PlumberUser> user = usrRepo.findById(userprincipal.getId());
 		if (userprincipal.getId() > 0 && user.get().getUserRole().equalsIgnoreCase("Admin")) {
 			List<Plumber> response = repo.plumberAdmin();
-			return ResponseEntity.status(HttpStatus.OK).body(response);
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "Plumber Details", response));
 		}
-		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Your Are Not Authorized Person.");
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person.", null));
 	}
 
 	@GetMapping("/admin-customer")
-	public ResponseEntity<Object> customerAdmin() throws APIException {
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> customerAdmin() throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		Optional<PlumberUser> user = usrRepo.findById(userprincipal.getId());
 		if (userprincipal.getId() > 0 && user.get().getUserRole().equalsIgnoreCase("Admin")) {
 			List<Customer> response = repo.customerAdmin();
-			return ResponseEntity.status(HttpStatus.OK).body(response);
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "Customet details", response));
 		}
-		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Your Are Not Authorized Person.");
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person.", null));
 	}
-
 }

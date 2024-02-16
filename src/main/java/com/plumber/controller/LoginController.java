@@ -1,5 +1,6 @@
 package com.plumber.controller;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -31,6 +32,7 @@ import com.plumber.entity.TokenCreate;
 import com.plumber.exception.APIException;
 import com.plumber.response.AuthResponse;
 import com.plumber.security.TokenProvider;
+import com.plumber.utils.ResponseBuilder;
 import com.plumber.validators.SignupValidator;
 
 @RestController
@@ -53,9 +55,9 @@ public class LoginController {
 	private RegisterRepository repo;
 
 	@PostMapping(path = Constants.CONTEXT_AUTH + "/signup") //
-	public ResponseEntity<Object> userSigUp(@RequestBody SignupRequest request)
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> userSigUp(@RequestBody SignupRequest request)
 			throws APIException, MessagingException, JsonMappingException, JsonProcessingException {
-		Map<String, String> errorMapper = SignupValidator.validate(request);
+		Map<String, List<String>> errorMapper = SignupValidator.validate(request);
 		String tempPwd = request.getPassword();
 		if (errorMapper.size() <= 0) {
 			String tpwd = request.getPassword();
@@ -67,14 +69,17 @@ public class LoginController {
 			TokenCreate token = tokenProvider.createToken(authentication);
 			AuthResponse authResponse = new AuthResponse(token.getToken());
 			authResponse.setUserRole(request.getUserRole());
-			return ResponseEntity.status(HttpStatus.OK).body(authResponse);
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "User Successfully Registered", authResponse));
 		} else {
-			return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errorMapper);
+			return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+					.body(ResponseBuilder.build("Error", null, errorMapper));
 		}
 	}
 
 	@PostMapping(path = Constants.CONTEXT_AUTH + "/login")
-	public ResponseEntity<Object> authenticateUser(@RequestBody LoginRequest loginRequest) throws APIException {
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> authenticateUser(
+			@RequestBody LoginRequest loginRequest) throws APIException {
 		TokenCreate token = null;
 		try {
 			Optional<PlumberUser> usr = userRepo.findByEmail(loginRequest.getEmail());
@@ -84,15 +89,18 @@ public class LoginController {
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 				token = tokenProvider.createToken(authentication);
 			} else {
-				return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("You Are not Register with us.");
+				return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+						.body(ResponseBuilder.build("Failure", "You Are Not Register With us", null));
 			}
 		} catch (AuthenticationException e) {
-			return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Invalid Credentials");
+			return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+					.body(ResponseBuilder.build("Failure", "Invalid Credeantials", null));
 		}
 		Optional<PlumberUser> usr = userRepo.findByEmail(loginRequest.getEmail());
 		AuthResponse authResponse = new AuthResponse(token.getToken());
 		authResponse.setUserRole(usr.get().getUserRole());
-		return ResponseEntity.status(HttpStatus.OK).body(authResponse);
+		return ResponseEntity.status(HttpStatus.OK)
+				.body(ResponseBuilder.build("Success", "Login Successful", authResponse));
 	}
 
 }

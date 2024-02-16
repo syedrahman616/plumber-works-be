@@ -15,6 +15,7 @@ import com.plumber.exception.APIException;
 import com.plumber.response.APIResponse;
 import com.plumber.security.UserPrincipal;
 import com.plumber.service.CustomerService;
+import com.plumber.utils.ResponseBuilder;
 
 @RestController
 public class CustomerController {
@@ -25,28 +26,29 @@ public class CustomerController {
 	CustomerService repo;
 
 	@PostMapping("/customer-profile")
-	public ResponseEntity<Object> updatecustomer(@RequestBody Customer request) throws APIException {
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> updatecustomer(@RequestBody Customer request)
+			throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		if (userprincipal.getId() > 0) {
 			APIResponse<Object> response = repo.customerProfile(request, userprincipal.getId());
 			return ResponseEntity.status(200).body(response);
 		}
-		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Your Are Not Authorized Person.");
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person.", null));
 	}
-	
+
 	@PostMapping("/add-job")
-	public ResponseEntity<Object> addJobs(@RequestBody Jobs request) throws APIException {
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> addJobs(@RequestBody Jobs request)
+			throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		if (userprincipal.getId() > 0) {
 			APIResponse<Object> response = repo.Jobs(request, userprincipal.getId());
 			return ResponseEntity.status(200).body(response);
 		}
-		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Your Are Not Authorized Person.");
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person.", null));
 	}
-	
-	
-	
-	
+
 }

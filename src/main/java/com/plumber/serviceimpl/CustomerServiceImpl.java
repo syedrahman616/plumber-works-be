@@ -1,5 +1,7 @@
 package com.plumber.serviceimpl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,5 +28,11 @@ public class CustomerServiceImpl implements CustomerService {
 
 		return repo.job(request, id);
 	}
+
+	@Override
+	public List<com.plumber.entity.Jobs> customerJobs(Long id) throws APIException {
+		return repo.customerJobs(id);
+	}
+	
 
 }

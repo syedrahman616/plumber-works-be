@@ -10,13 +10,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.amazonaws.http.HttpResponse;
 import com.plumber.dao.UserRepository;
 import com.plumber.entity.Customer;
+import com.plumber.entity.Jobs;
 import com.plumber.entity.Plumber;
 import com.plumber.entity.PlumberUser;
 import com.plumber.exception.APIException;
-import com.plumber.response.APIResponse;
 import com.plumber.security.UserPrincipal;
 import com.plumber.service.AdminService;
 import com.plumber.utils.ResponseBuilder;
@@ -52,9 +51,24 @@ public class AdminController {
 		if (userprincipal.getId() > 0 && user.get().getUserRole().equalsIgnoreCase("Admin")) {
 			List<Customer> response = repo.customerAdmin();
 			return ResponseEntity.status(HttpStatus.OK)
-					.body(ResponseBuilder.build("Success", "Customet details", response));
+					.body(ResponseBuilder.build("Success", "Customer details", response));
 		}
 		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
 				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person.", null));
 	}
+	
+	@GetMapping("/admin-jobs")
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> adminJobs() throws APIException {
+		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		Optional<PlumberUser> user = usrRepo.findById(userprincipal.getId());
+		if (userprincipal.getId() > 0 && user.get().getUserRole().equalsIgnoreCase("Admin")) {
+			List<Jobs> response = repo.adminJobs();
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "All Job details", response));
+		}
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person.", null));
+	}
+	
 }

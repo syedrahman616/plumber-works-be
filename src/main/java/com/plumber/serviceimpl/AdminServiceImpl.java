@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.plumber.dao.AdminRepository;
 import com.plumber.entity.Customer;
+import com.plumber.entity.Jobs;
 import com.plumber.entity.Plumber;
 import com.plumber.exception.APIException;
 import com.plumber.service.AdminService;
@@ -25,6 +26,11 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public List<Customer> customerAdmin() throws APIException {
 		return repo.adminCustomer();
+	}
+
+	@Override
+	public List<Jobs> adminJobs() throws APIException{
+		return repo.adminJobs();
 	}
 
 }

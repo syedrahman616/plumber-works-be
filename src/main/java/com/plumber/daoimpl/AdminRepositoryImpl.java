@@ -10,9 +10,11 @@ import org.springframework.stereotype.Repository;
 
 import com.plumber.dao.AdminRepository;
 import com.plumber.dao.CustomerUserRepository;
+import com.plumber.dao.JobRepository;
 import com.plumber.dao.PlumberUserRepository;
 import com.plumber.dao.UserRepository;
 import com.plumber.entity.Customer;
+import com.plumber.entity.Jobs;
 import com.plumber.entity.Plumber;
 import com.plumber.entity.PlumberUser;
 import com.plumber.exception.APIException;
@@ -31,6 +33,9 @@ public class AdminRepositoryImpl implements AdminRepository {
 
 	@Autowired
 	UserRepository userRepo;
+	
+	@Autowired
+	JobRepository jobRepo;
 
 	@Override
 	public List<Plumber> adminPlumber() throws APIException {
@@ -56,6 +61,12 @@ public class AdminRepositoryImpl implements AdminRepository {
 			}
 		}
 		return customerList;
+	}
+
+	@Override
+	public List<Jobs> adminJobs() throws APIException {
+		List<Jobs> response = jobRepo.findAll();
+		return response;
 	}
 
 }

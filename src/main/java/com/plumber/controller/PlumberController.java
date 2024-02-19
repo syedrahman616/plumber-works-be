@@ -1,14 +1,18 @@
 package com.plumber.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plumber.dao.UserRepository;
+import com.plumber.entity.Jobs;
 import com.plumber.entity.Plumber;
 import com.plumber.entity.Skill;
 import com.plumber.exception.APIException;
@@ -48,5 +52,32 @@ public class PlumberController {
 		}
 		return ResponseBuilder.build("Failure", "Your Are Not Authorized Person", null);
 	}
+	
+	@GetMapping("/plumber-jobs")
+	public ResponseEntity<com.plumber.response.APIResponse<Object>>  plumberJobs() throws APIException {
+		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userprincipal.getId() > 0) {
+			List<Jobs>response = repo.plumberJobs(userprincipal.getId());
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "plumber Job details", response));
+		}
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
+	}
+	
+	@GetMapping("/all-jobs")
+	public ResponseEntity<com.plumber.response.APIResponse<Object>>  allJobs() throws APIException {
+		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userprincipal.getId() > 0) {
+			List<Jobs>response = repo.allJobs(userprincipal.getId());
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "All Job details", response));
+		}
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
+	}
+	
 
 }

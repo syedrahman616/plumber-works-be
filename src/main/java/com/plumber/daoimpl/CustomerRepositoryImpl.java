@@ -1,8 +1,15 @@
 package com.plumber.daoimpl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.plumber.dao.CustomerRepository;
@@ -27,6 +34,9 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 
 	@Autowired
 	JobRepository jobRepo;
+	
+	@Autowired
+	NamedParameterJdbcTemplate jdbcTemplate;
 
 	@Override
 	public APIResponse<Object> customerProfile(Customer request, Long id) throws APIException {
@@ -69,19 +79,19 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 		if (user.isPresent() && request.getFlag().equalsIgnoreCase("add")) {
 			request.setCustomerId(id);
 			jobRepo.save(request);
-			response = ResponseBuilder.build("Success", "Edited Successfully", null);
-		} else if (user.isPresent() && request.getFlag().equalsIgnoreCase("get")) {
+			response = ResponseBuilder.build("Success", "Added Successfully", null);
+		} else if (user.isPresent() && request.getFlag().equalsIgnoreCase("edit")) {
 			Optional<Jobs> job = jobRepo.findById(request.getId());
 			if (job.isPresent()) {
-				Optional<Customer> obj = customerRepo.findById(request.getId());
-				response = ResponseBuilder.build("Success", "Plumber Details", obj);
+				jobRepo.save(request);
+				response = ResponseBuilder.build("Success", "Edited Successfully", null);
 			} else {
 				throw new APIException("21", "Invalid Data.");
 			}
 		} else if (user.isPresent() && request.getFlag().equalsIgnoreCase("delete")) {
 			Optional<Jobs> job = jobRepo.findById(request.getId());
 			if (job.isPresent()) {
-				customerRepo.deleteById(request.getId());
+				jobRepo.save(request);
 				response = ResponseBuilder.build("Success", "Deleted Successfully", null);
 			} else {
 				throw new APIException("21", "Invalid Data.");
@@ -91,5 +101,41 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 		}
 		return response;
 	}
+
+	@Override
+	public List<Jobs> customerJobs(Long id) throws APIException {
+		Optional<PlumberUser> user = userRepo.findById(id);
+		List<Jobs> response = new ArrayList<>();
+		if (user.get().getUserRole().equalsIgnoreCase("customer")) {
+			MapSqlParameterSource param = new MapSqlParameterSource();
+			param.addValue("customer_id", id);
+			response = jdbcTemplate.query(
+					"select * from job tj,plumber tp , customer tc where tj.plumber_id=tp.plumber_id and tj.customer_id=tc.customer_id and tj.customer_id=:customer_id", param,
+					new JobMapper());
+		}
+		return response;
+	}
+
+	private static final class JobMapper implements RowMapper<Jobs> {
+
+		@Override
+		public Jobs mapRow(ResultSet rs, int rowNum) throws SQLException {
+			Jobs obj = new Jobs();
+			obj.setId(rs.getLong("tj.id"));
+			obj.setPostCode(rs.getString("postcode"));
+			obj.setCustomerId(rs.getLong("customer_id"));
+			obj.setPlumberId(rs.getLong("plumber_id"));
+			obj.setCustomerName(rs.getString("tc.first_name") + " " + rs.getString("tc.last_name"));
+			obj.setPlumberName(rs.getString("tp.first_name") + " " + rs.getString("tp.last_name"));
+			obj.setAddress(rs.getString("tj.address"));
+			obj.setDescription(rs.getString("tj.description"));
+			obj.setImage1(rs.getString("image1"));
+			obj.setImage2(rs.getString("image2"));
+			obj.setVideo(rs.getString("video"));
+			return obj;
+		}
+	}
+	
+	
 
 }

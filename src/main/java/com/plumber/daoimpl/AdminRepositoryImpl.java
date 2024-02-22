@@ -33,34 +33,42 @@ public class AdminRepositoryImpl implements AdminRepository {
 
 	@Autowired
 	UserRepository userRepo;
-	
+
 	@Autowired
 	JobRepository jobRepo;
 
 	@Override
 	public List<Plumber> adminPlumber() throws APIException {
 		List<Plumber> plumberList = new ArrayList<>();
+		List<Plumber> finalResponse = new ArrayList<>();
 		plumberList = plumberRepo.findAll();
 		for (Plumber obj : plumberList) {
 			if (obj.getPlumberId() > 0) {
 				Optional<PlumberUser> user = userRepo.findById(obj.getPlumberId());
-				obj.setUserEmail(user.get().getEmail());
+				if (user.isPresent()) {
+					obj.setUserEmail(user.get().getEmail());
+					finalResponse.add(obj);
+				}
 			}
 		}
-		return plumberList;
+		return finalResponse;
 	}
 
 	@Override
 	public List<Customer> adminCustomer() throws APIException {
 		List<Customer> customerList = new ArrayList<>();
+		List<Customer> finalResponse = new ArrayList<>();
 		customerList = customerRepo.findAll();
 		for (Customer obj : customerList) {
 			if (obj.getCustomerId() > 0) {
 				Optional<PlumberUser> user = userRepo.findById(obj.getCustomerId());
-				obj.setUserEmail(user.get().getEmail());
+				if (user.isPresent()) {
+					obj.setUserEmail(user.get().getEmail());
+					finalResponse.add(obj);
+				}
 			}
 		}
-		return customerList;
+		return finalResponse;
 	}
 
 	@Override

@@ -12,39 +12,26 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "job")
-public class Jobs {
+@Table(name = "jobquotes")
+public class JobQuotes {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	@Column(name = "customer_id", nullable = false)
-	private long customerId;
+	@Column(name = "job_id", nullable = false)
+	private long jobId;
 	@Column(name = "plumber_id", nullable = false)
 	private long plumberId;
-	@Column(name = "job_title", nullable = false)
-	private String jobTitle;
 	@Column(name = "description", nullable = false)
 	private String description;
-	@Column(name = "image1", nullable = false)
-	private String image1;
-	@Column(name = "image2", nullable = false)
-	private String image2;
-	@Column(name = "video", nullable = false)
-	private String video;
-	@Column(name = "address", nullable = false)
-	private String address;
-	@Column(name = "postcode", nullable = false)
-	private String postCode;
 	@Column(name = "hours", nullable = false)
 	private int hours;
 	@Column(name = "rate_per_hour", nullable = false)
 	private int ratePerHour;
-	@Column(name = "fixed_price", nullable = false)
-	private int fixedPrice;
+	@Column(name = "price", nullable = false)
+	private int price;
+	@Column(name = "approved", nullable = false)
+	private boolean approved;
 	@Transient
 	private String flag;
-	@Transient
-	private String customerName;
-	@Transient
-	private String plumberName;
+
 }

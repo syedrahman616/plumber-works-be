@@ -115,6 +115,7 @@ public class PlumberRepositoryImpl implements PlumberRepository {
 			obj.setCustomerName(rs.getString("tc.first_name") + " " + rs.getString("tc.last_name"));
 			obj.setPlumberName(rs.getString("tp.first_name") + " " + rs.getString("tp.last_name"));
 			obj.setAddress(rs.getString("tj.address"));
+			obj.setJobTitle(rs.getString("job_title"));
 			obj.setDescription(rs.getString("tj.description"));
 			obj.setImage1(rs.getString("image1"));
 			obj.setImage2(rs.getString("image2"));

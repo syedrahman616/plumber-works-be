@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.plumber.dao.AdminRepository;
@@ -13,6 +14,7 @@ import com.plumber.dao.CustomerUserRepository;
 import com.plumber.dao.JobRepository;
 import com.plumber.dao.PlumberUserRepository;
 import com.plumber.dao.UserRepository;
+import com.plumber.entity.AdminApproved;
 import com.plumber.entity.Customer;
 import com.plumber.entity.Jobs;
 import com.plumber.entity.Plumber;
@@ -29,7 +31,7 @@ public class AdminRepositoryImpl implements AdminRepository {
 	CustomerUserRepository customerRepo;
 
 	@Autowired
-	JdbcTemplate jdbcTemplate;
+	NamedParameterJdbcTemplate jdbcTemplate;
 
 	@Autowired
 	UserRepository userRepo;
@@ -75,6 +77,26 @@ public class AdminRepositoryImpl implements AdminRepository {
 	public List<Jobs> adminJobs() throws APIException {
 		List<Jobs> response = jobRepo.findAll();
 		return response;
+	}
+
+	@Override
+	public void adminApproved(AdminApproved request) throws APIException {
+		Optional<PlumberUser> user = userRepo.findById((long) request.getUserId());
+		if (user.isPresent()) {
+			MapSqlParameterSource param = new MapSqlParameterSource();
+			param.addValue("status", request.getAction());
+			param.addValue("user_id", request.getUserId());
+			String sqlQuery = "";
+			if (request.getUserRole().equalsIgnoreCase("customer")) {
+				sqlQuery = "update customer set status=:status where customer_id=:user_id";
+			} else {
+				sqlQuery = "update plumber set status=:status where plumber_id=:user_id";
+			}
+
+			jdbcTemplate.update(sqlQuery, param);
+
+		}
+
 	}
 
 }

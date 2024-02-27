@@ -15,4 +15,6 @@ public interface CustomerService {
 
 	List<com.plumber.entity.Jobs> customerJobs(Long id)throws APIException;
 
+	List<com.plumber.entity.Plumber> plumberDetails(Long id)throws APIException;
+
 }

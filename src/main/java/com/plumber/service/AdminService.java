@@ -2,6 +2,7 @@ package com.plumber.service;
 
 import java.util.List;
 
+import com.plumber.entity.AdminApproved;
 import com.plumber.entity.Customer;
 import com.plumber.entity.Jobs;
 import com.plumber.entity.Plumber;
@@ -14,5 +15,7 @@ public interface AdminService {
 	List<Customer> customerAdmin()throws APIException;
 
 	List<Jobs> adminJobs() throws APIException;
+
+	void adminApproved(AdminApproved request)throws APIException;
 
 }

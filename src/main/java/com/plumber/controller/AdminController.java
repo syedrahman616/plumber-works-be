@@ -9,8 +9,6 @@ import javax.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,14 +20,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.plumber.dao.RegisterRepository;
 import com.plumber.dao.UserRepository;
+import com.plumber.entity.AdminApproved;
 import com.plumber.entity.Customer;
 import com.plumber.entity.Jobs;
 import com.plumber.entity.Plumber;
 import com.plumber.entity.PlumberUser;
 import com.plumber.entity.SignupRequest;
-import com.plumber.entity.TokenCreate;
 import com.plumber.exception.APIException;
-import com.plumber.response.AuthResponse;
 import com.plumber.security.UserPrincipal;
 import com.plumber.service.AdminService;
 import com.plumber.utils.ResponseBuilder;
@@ -116,5 +113,20 @@ public class AdminController {
 					.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person.", null));
 
 		}
+	}
+
+	@PostMapping("/admin-approved")
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> adminApproved(@RequestBody AdminApproved request)
+			throws APIException {
+		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		Optional<PlumberUser> user = usrRepo.findById(userprincipal.getId());
+		if (userprincipal.getId() > 0 && user.get().getUserRole().equalsIgnoreCase("Admin")) {
+			repo.adminApproved(request);
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "Approved Success.", null));
+		}
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person.", null));
 	}
 }

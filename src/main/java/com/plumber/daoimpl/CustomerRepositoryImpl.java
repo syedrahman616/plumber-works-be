@@ -15,9 +15,11 @@ import org.springframework.stereotype.Repository;
 import com.plumber.dao.CustomerRepository;
 import com.plumber.dao.CustomerUserRepository;
 import com.plumber.dao.JobRepository;
+import com.plumber.dao.PlumberUserRepository;
 import com.plumber.dao.UserRepository;
 import com.plumber.entity.Customer;
 import com.plumber.entity.Jobs;
+import com.plumber.entity.Plumber;
 import com.plumber.entity.PlumberUser;
 import com.plumber.exception.APIException;
 import com.plumber.response.APIResponse;
@@ -34,9 +36,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 
 	@Autowired
 	JobRepository jobRepo;
-	
+
 	@Autowired
 	NamedParameterJdbcTemplate jdbcTemplate;
+
+	@Autowired
+	PlumberUserRepository plumberRepo;
 
 	@Override
 	public APIResponse<Object> customerProfile(Customer request, Long id) throws APIException {
@@ -109,9 +114,9 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 		if (user.get().getUserRole().equalsIgnoreCase("customer")) {
 			MapSqlParameterSource param = new MapSqlParameterSource();
 			param.addValue("customer_id", id);
-			response = jdbcTemplate.query(
-					"select * from job tj,plumber tp , customer tc where tj.plumber_id=tp.plumber_id and tj.customer_id=tc.customer_id and tj.customer_id=:customer_id", param,
-					new JobMapper());
+			response = jdbcTemplate.query("select * from job tj left join plumber tp on tj.plumber_id=tp.plumber_id\r\n"
+					+ "left join customer tc on tj.customer_id=tc.customer_id \r\n"
+					+ "where tj.customer_id=:customer_id", param, new JobMapper());
 		}
 		return response;
 	}
@@ -128,6 +133,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 			obj.setCustomerName(rs.getString("tc.first_name") + " " + rs.getString("tc.last_name"));
 			obj.setPlumberName(rs.getString("tp.first_name") + " " + rs.getString("tp.last_name"));
 			obj.setAddress(rs.getString("tj.address"));
+			obj.setJobTitle(rs.getString("job_title"));
 			obj.setDescription(rs.getString("tj.description"));
 			obj.setImage1(rs.getString("image1"));
 			obj.setImage2(rs.getString("image2"));
@@ -135,7 +141,26 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 			return obj;
 		}
 	}
-	
-	
+
+	@Override
+	public List<Plumber> plumberDetails(Long id) throws APIException {
+		Optional<PlumberUser> user = userRepo.findById(id);
+		if (user.isPresent() && user.get().getUserRole().equalsIgnoreCase("customer")) {
+			List<Plumber> plumber = plumberRepo.findByPlumbers();
+			return plumber;
+		} else {
+			throw new APIException("21", "You Are Not Authorized Person.");
+		}
+	}
+
+//	private static final class PlumberDetailMapper implements RowMapper<Plumber> {
+//
+//		@Override
+//		public Plumber mapRow(ResultSet rs, int rowNum) throws SQLException {
+//			Plumber obj = new Plumber();
+//			obj.set(rs.get);
+//		}
+//	}
+//}
 
 }

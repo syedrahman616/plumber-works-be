@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.plumber.dao.UserRepository;
 import com.plumber.entity.Customer;
 import com.plumber.entity.Jobs;
+import com.plumber.entity.Plumber;
 import com.plumber.exception.APIException;
 import com.plumber.response.APIResponse;
 import com.plumber.security.UserPrincipal;
@@ -60,6 +61,19 @@ public class CustomerController {
 				.getPrincipal();
 		if (userprincipal.getId() > 0) {
 			List<Jobs>response = repo.customerJobs(userprincipal.getId());
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "Customer Job details", response));
+		}
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
+	}
+	
+	@GetMapping("/customer-plumber-details")
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> plumberDetails() throws APIException {
+		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userprincipal.getId() > 0) {
+			List<Plumber>response = repo.plumberDetails(userprincipal.getId());
 			return ResponseEntity.status(HttpStatus.OK)
 					.body(ResponseBuilder.build("Success", "Customer Job details", response));
 		}

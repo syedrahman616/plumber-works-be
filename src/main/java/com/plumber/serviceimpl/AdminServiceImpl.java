@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.plumber.dao.AdminRepository;
+import com.plumber.entity.AdminApproved;
 import com.plumber.entity.Customer;
 import com.plumber.entity.Jobs;
 import com.plumber.entity.Plumber;
@@ -31,6 +32,12 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public List<Jobs> adminJobs() throws APIException{
 		return repo.adminJobs();
+	}
+
+	@Override
+	public void adminApproved(AdminApproved request) throws APIException {
+		repo.adminApproved(request);
+		
 	}
 
 }

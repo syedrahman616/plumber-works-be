@@ -35,6 +35,8 @@ public class Plumber {
 	private String mobile;
 	@Column(name = "availability", nullable = false)
 	private boolean availability;
+	@Column(name = "status", nullable = false)
+	private boolean status;
 	@Transient
 	private String flag;
 	@Transient

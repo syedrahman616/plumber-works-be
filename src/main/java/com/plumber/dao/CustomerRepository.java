@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.plumber.entity.Customer;
 import com.plumber.entity.Jobs;
+import com.plumber.entity.Plumber;
 import com.plumber.exception.APIException;
 import com.plumber.response.APIResponse;
 
@@ -14,5 +15,7 @@ public interface CustomerRepository {
 	APIResponse<Object> job(Jobs request, Long id)throws APIException;
 
 	List<Jobs> customerJobs(Long id)throws APIException;
+
+	List<Plumber> plumberDetails(Long id)throws APIException;
 
 }

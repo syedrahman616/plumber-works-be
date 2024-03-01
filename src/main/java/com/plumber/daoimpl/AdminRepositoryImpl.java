@@ -20,6 +20,8 @@ import com.plumber.entity.Jobs;
 import com.plumber.entity.Plumber;
 import com.plumber.entity.PlumberUser;
 import com.plumber.exception.APIException;
+import com.plumber.response.APIResponse;
+import com.plumber.utils.ResponseBuilder;
 
 @Repository
 public class AdminRepositoryImpl implements AdminRepository {
@@ -97,6 +99,72 @@ public class AdminRepositoryImpl implements AdminRepository {
 
 		}
 
+	}
+
+	@Override
+	public APIResponse<Object> adminCustomerProfile(Customer request) throws APIException {
+		APIResponse<Object> response = null;
+		if (request.getFlag().equalsIgnoreCase("edit")) {
+			Optional<Customer> customer = customerRepo.findById(request.getId());
+			if (customer.isPresent()) {
+				customerRepo.save(request);
+				response = ResponseBuilder.build("Success", "Edited Successfully", null);
+			} else {
+				throw new APIException("21", "Invalid Data.");
+			}
+		} else if (request.getFlag().equalsIgnoreCase("get")) {
+			Optional<Customer> customer = customerRepo.findById(request.getId());
+			if (customer.isPresent()) {
+				Optional<Customer> obj = customerRepo.findById(request.getId());
+				response = ResponseBuilder.build("Success", "Plumber Details", obj);
+			} else {
+				throw new APIException("21", "Invalid Data.");
+			}
+		} else if (request.getFlag().equalsIgnoreCase("delete")) {
+			Optional<Customer> customer = customerRepo.findById(request.getId());
+			if (customer.isPresent()) {
+				customerRepo.deleteById(request.getId());
+				response = ResponseBuilder.build("Success", "Deleted Successfully", null);
+			} else {
+				throw new APIException("21", "Invalid Data.");
+			}
+		} else {
+			throw new APIException("21", "User Not Found.");
+		}
+		return response;
+	}
+
+	@Override
+	public APIResponse<Object> adminPlumberProfile(Plumber request) throws APIException {
+		APIResponse<Object> response = null;
+		if (request.getFlag().equalsIgnoreCase("edit")) {
+			Optional<Plumber> plumber = plumberRepo.findById(request.getId());
+			if (plumber.isPresent()) {
+				plumberRepo.save(request);
+				response = ResponseBuilder.build("Success", "Edited Successfully", null);
+			} else {
+				throw new APIException("21", "Invalid Data.");
+			}
+		} else if (request.getFlag().equalsIgnoreCase("get")) {
+			Optional<Plumber> plumber = plumberRepo.findById(request.getId());
+			if (plumber.isPresent()) {
+				Optional<Plumber> obj = plumberRepo.findById(request.getId());
+				response = ResponseBuilder.build("Success", "Plumber Details", obj);
+			} else {
+				throw new APIException("21", "Invalid Data.");
+			}
+		} else if (request.getFlag().equalsIgnoreCase("delete")) {
+			Optional<Plumber> plumber = plumberRepo.findById(request.getId());
+			if (plumber.isPresent()) {
+				plumberRepo.deleteById(request.getId());
+				response = ResponseBuilder.build("Success", "Deleted Successfully", null);
+			} else {
+				throw new APIException("21", "Invalid Data.");
+			}
+		} else {
+			throw new APIException("21", "User Not Found.");
+		}
+		return response;
 	}
 
 }

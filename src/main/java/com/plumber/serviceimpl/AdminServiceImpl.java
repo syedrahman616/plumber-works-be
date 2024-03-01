@@ -11,6 +11,7 @@ import com.plumber.entity.Customer;
 import com.plumber.entity.Jobs;
 import com.plumber.entity.Plumber;
 import com.plumber.exception.APIException;
+import com.plumber.response.APIResponse;
 import com.plumber.service.AdminService;
 
 @Service
@@ -39,5 +40,17 @@ public class AdminServiceImpl implements AdminService {
 		repo.adminApproved(request);
 		
 	}
+
+	@Override
+	public APIResponse<Object> adminCustomerProfile(Customer request) throws APIException {
+		return repo.adminCustomerProfile(request);
+	}
+
+	@Override
+	public APIResponse<Object> adminPlumberProfile(Plumber request) throws APIException {
+		return repo.adminPlumberProfile(request);
+	}
+
+	
 
 }

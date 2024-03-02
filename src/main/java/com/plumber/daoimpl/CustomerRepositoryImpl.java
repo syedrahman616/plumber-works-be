@@ -18,6 +18,8 @@ import com.plumber.dao.JobRepository;
 import com.plumber.dao.PlumberUserRepository;
 import com.plumber.dao.UserRepository;
 import com.plumber.entity.Customer;
+import com.plumber.entity.JobInvitation;
+import com.plumber.entity.JobQuotes;
 import com.plumber.entity.Jobs;
 import com.plumber.entity.Plumber;
 import com.plumber.entity.PlumberUser;
@@ -153,14 +155,109 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 		}
 	}
 
-//	private static final class PlumberDetailMapper implements RowMapper<Plumber> {
-//
-//		@Override
-//		public Plumber mapRow(ResultSet rs, int rowNum) throws SQLException {
-//			Plumber obj = new Plumber();
-//			obj.set(rs.get);
-//		}
-//	}
-//}
+	@Override
+	public APIResponse<Object> jobInvitation(JobInvitation request, Long id) throws APIException {
+		MapSqlParameterSource param = new MapSqlParameterSource();
+		param.addValue("job_id", request.getJobId());
+		param.addValue("plumber_id", request.getPlumberId());
+		param.addValue("price", request.getPrice());
+		param.addValue("description", request.getDescription());
+		if (request.getFlag().equalsIgnoreCase("add")) {
+			int count = jdbcTemplate.queryForObject(
+					"select count(*) from job_invite where job_id=:job_id and plumber_id=:plumber_id", param,
+					Integer.class);
+			if (count == 0) {
+				jdbcTemplate.update(
+						"insert into job_invite(job_id,plumber_id,price,description,accept) value(:job_id,:plumber_id,:price,:description,false)",
+						param);
+			} else {
+				throw new APIException("21", "You are already inivited this job.");
+			}
+		} else if (request.getFlag().equalsIgnoreCase("edit")) {
+			param.addValue("id", request.getId());
+			param.addValue("description", request.getDescription());
+			int count = jdbcTemplate.queryForObject("select count(*) from job_invite where id=:id", param,
+					Integer.class);
+			if (count > 0) {
+				jdbcTemplate.update("update job_invite set(price=:price,description=:description) where id=:id", param);
+			}
+		}
+		return ResponseBuilder.build("Success", "invitation Successfully", null);
+	}
 
+	@Override
+	public List<JobInvitation> getJobInvitation(Long id) throws APIException {
+		Optional<PlumberUser> user = userRepo.findById(id);
+		if (user.isPresent() && user.get().getUserRole().equalsIgnoreCase("customer")) {
+			MapSqlParameterSource param = new MapSqlParameterSource();
+			param.addValue("customer_id", id);
+			List<JobInvitation> response = jdbcTemplate.query(
+					"select * from job_invite tv,job tj,plumber tp where tv.job_id=tj.id and tv.plumber_id=tp.plumber_id "
+							+ "and tj.customer_id=:customer_id",
+					param, new CustomerJobInvitationMapper());
+			return response;
+		} else {
+			throw new APIException("21", "You are not Authorized Person.");
+		}
+	}
+
+	private static final class CustomerJobInvitationMapper implements RowMapper<JobInvitation> {
+
+		@Override
+		public JobInvitation mapRow(ResultSet rs, int rowNum) throws SQLException {
+			JobInvitation obj = new JobInvitation();
+			obj.setId(rs.getInt("tv.id"));
+			obj.setJobId(rs.getInt("tj.id"));
+			obj.setPostCode(rs.getString("postcode"));
+			obj.setCustomerId(rs.getInt("customer_id"));
+			obj.setPlumberId(rs.getInt("plumber_id"));
+			obj.setPlumberName(rs.getString("tp.first_name") + " " + rs.getString("tp.last_name"));
+			obj.setAddress(rs.getString("tj.address"));
+			obj.setJobTitle(rs.getString("job_title"));
+			obj.setDescription(rs.getString("tj.description"));
+			obj.setImage1(rs.getString("image1"));
+			obj.setImage2(rs.getString("image2"));
+			obj.setVideo(rs.getString("video"));
+			obj.setAccept(rs.getBoolean("accept"));
+			return obj;
+		}
+	}
+
+	@Override
+	public List<JobQuotes> getCustomerQuotes(Long id) throws APIException {
+		Optional<PlumberUser> user = userRepo.findById(id);
+		if (user.isPresent() && user.get().getUserRole().equalsIgnoreCase("customer")) {
+			MapSqlParameterSource param = new MapSqlParameterSource();
+			param.addValue("customer_id", id);
+			List<JobQuotes> response = jdbcTemplate.query(
+					"select * from job_quotes tq,job tj,plumber tp where tq.job_id=tj.id and tq.plumber_id=tp.plumber_id and tj.customer_id=:customer_id",
+					param, new CustomerJobQuotesMapper());
+			return response;
+		} else {
+			throw new APIException("21", "You are not Authorized Person.");
+		}
+	}
+
+	private static final class CustomerJobQuotesMapper implements RowMapper<JobQuotes> {
+
+		@Override
+		public JobQuotes mapRow(ResultSet rs, int rowNum) throws SQLException {
+			JobQuotes obj = new JobQuotes();
+			obj.setId(rs.getInt("tq.id"));
+			obj.setJobId(rs.getInt("tq.job_id"));
+			obj.setPostCode(rs.getString("postcode"));
+			obj.setCustomerId(rs.getInt("customer_id"));
+			obj.setPlumberId(rs.getInt("plumber_id"));
+			obj.setPrice(rs.getDouble("tq.price"));
+			obj.setPlumberName(rs.getString("tp.first_name") + " " + rs.getString("tp.last_name"));
+			obj.setAddress(rs.getString("tj.address"));
+			obj.setJobTitle(rs.getString("job_title"));
+			obj.setDescription(rs.getString("tq.description"));
+			obj.setImage1(rs.getString("image1"));
+			obj.setImage2(rs.getString("image2"));
+			obj.setAccept(rs.getBoolean("accept"));
+			obj.setVideo(rs.getString("video"));
+			return obj;
+		}
+	}
 }

@@ -1,10 +1,13 @@
 package com.plumber.daoimpl;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -16,6 +19,8 @@ import com.plumber.dao.PlumberUserRepository;
 import com.plumber.dao.UserRepository;
 import com.plumber.entity.AdminApproved;
 import com.plumber.entity.Customer;
+import com.plumber.entity.JobInvitation;
+import com.plumber.entity.JobQuotes;
 import com.plumber.entity.Jobs;
 import com.plumber.entity.Plumber;
 import com.plumber.entity.PlumberUser;
@@ -165,6 +170,81 @@ public class AdminRepositoryImpl implements AdminRepository {
 			throw new APIException("21", "User Not Found.");
 		}
 		return response;
+	}
+
+	@Override
+	public List<JobInvitation> adminJobInvitation(Long id) throws APIException {
+		Optional<PlumberUser> user = userRepo.findById(id);
+		if (user.isPresent() && user.get().getUserRole().equalsIgnoreCase("Admin")) {
+			List<JobInvitation> response = jdbcTemplate.query(
+					"select * from job_invite tv,job tj,plumber tp,customer tc where tv.job_id=tj.id and tv.plumber_id=tp.plumber_id "
+							+ "and tj.customer_id=tc.customer_id",
+					new AdminJobInvitationMapper());
+			return response;
+		} else {
+			throw new APIException("21", "You are not Authorized Person.");
+		}
+	}
+
+	private static final class AdminJobInvitationMapper implements RowMapper<JobInvitation> {
+
+		@Override
+		public JobInvitation mapRow(ResultSet rs, int rowNum) throws SQLException {
+			JobInvitation obj = new JobInvitation();
+			obj.setId(rs.getInt("tv.id"));
+			obj.setJobId(rs.getInt("tj.id"));
+			obj.setPostCode(rs.getString("postcode"));
+			obj.setCustomerId(rs.getInt("customer_id"));
+			obj.setPlumberId(rs.getInt("plumber_id"));
+			obj.setPrice(rs.getDouble("tv.price"));
+			obj.setPlumberName(rs.getString("tp.first_name") + " " + rs.getString("tp.last_name"));
+			obj.setCustomerName(rs.getString("tc.first_name") + " " + rs.getString("tc.last_name"));
+			obj.setAddress(rs.getString("tj.address"));
+			obj.setJobTitle(rs.getString("job_title"));
+			obj.setDescription(rs.getString("tj.description"));
+			obj.setImage1(rs.getString("image1"));
+			obj.setImage2(rs.getString("image2"));
+			obj.setVideo(rs.getString("video"));
+			obj.setAccept(rs.getBoolean("accept"));
+			return obj;
+		}
+	}
+
+	@Override
+	public List<JobQuotes> getAdminJobQoutes(Long id) throws APIException {
+		Optional<PlumberUser> user = userRepo.findById(id);
+		if (user.isPresent() && user.get().getUserRole().equalsIgnoreCase("Admin")) {
+			List<JobQuotes> response = jdbcTemplate.query(
+					"select * from job_quotes tq,job tj,customer tc,plumber tp where tq.job_id=tj.id and tj.customer_id=tc.customer_id and tq.plumber_id=tp.plumber_id",
+					new PlumberJobQuotesMapper());
+			return response;
+		} else {
+			throw new APIException("21", "You are not Authorized Person.");
+		}
+	}
+
+	private static final class PlumberJobQuotesMapper implements RowMapper<JobQuotes> {
+
+		@Override
+		public JobQuotes mapRow(ResultSet rs, int rowNum) throws SQLException {
+			JobQuotes obj = new JobQuotes();
+			obj.setId(rs.getInt("tq.id"));
+			obj.setJobId(rs.getInt("tq.job_id"));
+			obj.setPostCode(rs.getString("postcode"));
+			obj.setCustomerId(rs.getInt("customer_id"));
+			obj.setPlumberId(rs.getInt("plumber_id"));
+			obj.setPrice(rs.getDouble("tq.price"));
+			obj.setCustomerName(rs.getString("tc.first_name") + " " + rs.getString("tc.last_name"));
+			obj.setPlumberName(rs.getString("tp.first_name") + " " + rs.getString("tp.last_name"));
+			obj.setAddress(rs.getString("tj.address"));
+			obj.setJobTitle(rs.getString("job_title"));
+			obj.setDescription(rs.getString("tq.description"));
+			obj.setImage1(rs.getString("image1"));
+			obj.setImage2(rs.getString("image2"));
+			obj.setAccept(rs.getBoolean("accept"));
+			obj.setVideo(rs.getString("video"));
+			return obj;
+		}
 	}
 
 }

@@ -8,11 +8,17 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "jobquotes")
+@Table(name = "job_quotes")
+@JsonInclude(value = Include.NON_EMPTY, content = Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class JobQuotes {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,10 +34,28 @@ public class JobQuotes {
 	@Column(name = "rate_per_hour", nullable = false)
 	private int ratePerHour;
 	@Column(name = "price", nullable = false)
-	private int price;
-	@Column(name = "approved", nullable = false)
-	private boolean approved;
+	private double price;
+	@Column(name = "accept", nullable = false)
+	private boolean accept;
 	@Transient
 	private String flag;
+	@Transient
+	private String image1;
+	@Transient
+	private String image2;
+	@Transient
+	private String video;
+	@Transient
+	private String address;
+	@Transient
+	private String postCode;
+	@Transient
+	private String customerName;
+	@Transient
+	private String plumberName;
+	@Transient
+	private String jobTitle;
+	@Transient
+	private int customerId;
 
 }

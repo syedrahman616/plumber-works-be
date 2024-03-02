@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.plumber.dao.UserRepository;
 import com.plumber.entity.Customer;
+import com.plumber.entity.JobInvitation;
+import com.plumber.entity.JobQuotes;
 import com.plumber.entity.Jobs;
 import com.plumber.entity.Plumber;
 import com.plumber.exception.APIException;
@@ -54,34 +56,70 @@ public class CustomerController {
 		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
 				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person.", null));
 	}
-	
+
 	@GetMapping("/customer-jobs")
-	public ResponseEntity<com.plumber.response.APIResponse<Object>>  customerJobs() throws APIException {
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> customerJobs() throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		if (userprincipal.getId() > 0) {
-			List<Jobs>response = repo.customerJobs(userprincipal.getId());
+			List<Jobs> response = repo.customerJobs(userprincipal.getId());
 			return ResponseEntity.status(HttpStatus.OK)
 					.body(ResponseBuilder.build("Success", "Customer Job details", response));
 		}
 		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
 				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
 	}
-	
+
 	@GetMapping("/customer-plumber-details")
 	public ResponseEntity<com.plumber.response.APIResponse<Object>> plumberDetails() throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		if (userprincipal.getId() > 0) {
-			List<Plumber>response = repo.plumberDetails(userprincipal.getId());
+			List<Plumber> response = repo.plumberDetails(userprincipal.getId());
 			return ResponseEntity.status(HttpStatus.OK)
 					.body(ResponseBuilder.build("Success", "Customer Job details", response));
 		}
 		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
 				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
 	}
+
+	@PostMapping("/job-invitation")
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> jobInvitation(@RequestBody JobInvitation request)
+			throws APIException {
+		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userprincipal.getId() > 0) {
+			APIResponse<Object> response = repo.JobsInvitation(request, userprincipal.getId());
+			return ResponseEntity.status(200).body(response);
+		}
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person.", null));
+	}
+
+	@GetMapping("/customer-job-invitation")
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> getJobInvitation() throws APIException {
+		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userprincipal.getId() > 0) {
+			List<JobInvitation> response = repo.getJobInvitation(userprincipal.getId());
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "Customer Job invitation", response));
+		}
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
+	}
 	
-	
-	
+	@GetMapping("/get-customer-quotes")
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> getCustomerQuotes() throws APIException {
+		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userprincipal.getId() > 0) {
+			List<JobQuotes> response = repo.getCustomerQoutes(userprincipal.getId());
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "Customer Job invitation", response));
+		}
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
+	}
 
 }

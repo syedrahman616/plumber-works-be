@@ -22,6 +22,8 @@ import com.plumber.dao.RegisterRepository;
 import com.plumber.dao.UserRepository;
 import com.plumber.entity.AdminApproved;
 import com.plumber.entity.Customer;
+import com.plumber.entity.JobInvitation;
+import com.plumber.entity.JobQuotes;
 import com.plumber.entity.Jobs;
 import com.plumber.entity.Plumber;
 import com.plumber.entity.PlumberUser;
@@ -159,5 +161,31 @@ public class AdminController {
 		}
 		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
 				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person.", null));
+	}
+	
+	@GetMapping("/admin-job-invitation")
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> getAdminJobInvitation() throws APIException {
+		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userprincipal.getId() > 0) {
+			List<JobInvitation> response = repo.getAdminJobInvitation(userprincipal.getId());
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "Customer Job invitation", response));
+		}
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
+	}
+	
+	@GetMapping("/get-admin-quotes")
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> getAdminQuotes() throws APIException {
+		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userprincipal.getId() > 0) {
+			List<JobQuotes> response = repo.getAdminQoutes(userprincipal.getId());
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "Customer Job invitation", response));
+		}
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
 	}
 }

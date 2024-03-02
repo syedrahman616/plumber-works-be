@@ -2,6 +2,8 @@ package com.plumber.dao;
 
 import java.util.List;
 
+import com.plumber.entity.JobInvitation;
+import com.plumber.entity.JobQuotes;
 import com.plumber.entity.Jobs;
 import com.plumber.entity.Plumber;
 import com.plumber.entity.Skill;
@@ -17,5 +19,11 @@ public interface PlumberRepository {
 	List<Jobs> plumberJobs(Long id)throws APIException;
 
 	List<Jobs> allJobs(Long id)throws APIException;
+
+	List<JobInvitation> getPlumberJobInvitation(Long id)throws APIException;
+
+	APIResponse<Object> plumberJobQoutes(JobQuotes request, Long id)throws APIException;
+
+	List<JobQuotes> getPlumberJobQuotes(Long id)throws APIException;
 
 }

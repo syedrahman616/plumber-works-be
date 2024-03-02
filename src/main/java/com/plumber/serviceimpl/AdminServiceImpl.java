@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import com.plumber.dao.AdminRepository;
 import com.plumber.entity.AdminApproved;
 import com.plumber.entity.Customer;
+import com.plumber.entity.JobInvitation;
+import com.plumber.entity.JobQuotes;
 import com.plumber.entity.Jobs;
 import com.plumber.entity.Plumber;
 import com.plumber.exception.APIException;
@@ -49,6 +51,16 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public APIResponse<Object> adminPlumberProfile(Plumber request) throws APIException {
 		return repo.adminPlumberProfile(request);
+	}
+
+	@Override
+	public List<JobInvitation> getAdminJobInvitation(Long id) throws APIException {
+		return repo.adminJobInvitation(id);
+	}
+
+	@Override
+	public List<JobQuotes> getAdminQoutes(Long id) throws APIException {
+		return repo.getAdminJobQoutes(id);
 	}
 
 	

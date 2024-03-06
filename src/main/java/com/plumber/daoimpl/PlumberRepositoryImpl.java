@@ -91,10 +91,21 @@ public class PlumberRepositoryImpl implements PlumberRepository {
 	@Override
 	public void addSkill(Skill request, Long id) throws APIException {
 		Optional<PlumberUser> user = userRepo.findById(id);
-		if (user.get().getUserRole().equalsIgnoreCase("plumber")) {
+		if (user.get().getUserRole().equalsIgnoreCase("customer")) {
 			MapSqlParameterSource param = new MapSqlParameterSource();
-			param.addValue("skillName", request.getSkillName());
-			param.addValue("level", request.getSkillLevel());
+			param.addValue("plumber_id", request.getPlumberId());
+			param.addValue("job_id", request.getJobId());
+			param.addValue("rating", request.getRating());
+			param.addValue("customer_id", id);
+			int count = jdbcTemplate.queryForObject(
+					"select count(*) from skill where job_id=:job_id and plumber_id=:plumber_id", param, Integer.class);
+			if (count == 0) {
+				jdbcTemplate.update(
+						"insert into skill (plumber_id,customer_id,job_id,rating) value(:plumber_id,:customer_id,:job_id,:rating)",
+						param);
+			} else {
+				throw new APIException("21", "This Job Already Skill rating added.");
+			}
 		}
 
 	}
@@ -107,7 +118,7 @@ public class PlumberRepositoryImpl implements PlumberRepository {
 			MapSqlParameterSource param = new MapSqlParameterSource();
 			param.addValue("plumber_id", id);
 			response = jdbcTemplate.query(
-					"select * from job tj,plumber tp ,customer tc where tj.plumber_id=tp.plumber_id and tj.customer_id=tc.customer_id and tj.plumber_id=:plumber_id",
+					"select * from job tj,plumber tp ,customer tc where tj.plumber_id=tp.plumber_id and tj.customer_id=tc.customer_id and tj.plumber_id=:plumber_id and tj.finished=false",
 					param, new JobMapper());
 		}
 		return response;
@@ -130,6 +141,12 @@ public class PlumberRepositoryImpl implements PlumberRepository {
 			obj.setImage1(rs.getString("image1"));
 			obj.setImage2(rs.getString("image2"));
 			obj.setVideo(rs.getString("video"));
+			obj.setFixedPrice(rs.getInt("fixed_price"));
+			obj.setFinished(rs.getBoolean("finished"));
+			obj.setCustomerStartDate(rs.getString("customer_start_date"));
+			obj.setPlumberStartDate(rs.getString("plumber_start_date"));
+			obj.setCustomerEndDate(rs.getString("customer_end_date"));
+			obj.setPlumberEndDate(rs.getString("plumber_end_date"));
 			return obj;
 		}
 	}
@@ -281,6 +298,20 @@ public class PlumberRepositoryImpl implements PlumberRepository {
 			obj.setVideo(rs.getString("video"));
 			return obj;
 		}
+	}
+
+	@Override
+	public List<Jobs> plumberFinishedJobs(Long id) throws APIException {
+		Optional<PlumberUser> user = userRepo.findById(id);
+		List<Jobs> response = new ArrayList<>();
+		if (user.get().getUserRole().equalsIgnoreCase("plumber")) {
+			MapSqlParameterSource param = new MapSqlParameterSource();
+			param.addValue("plumber_id", id);
+			response = jdbcTemplate.query(
+					"select * from job tj,plumber tp ,customer tc where tj.plumber_id=tp.plumber_id and tj.customer_id=tc.customer_id and tj.plumber_id=:plumber_id and tj.finished=true",
+					param, new JobMapper());
+		}
+		return response;
 	}
 
 }

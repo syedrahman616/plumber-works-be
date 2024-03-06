@@ -41,6 +41,16 @@ public class Jobs {
 	private int ratePerHour;
 	@Column(name = "fixed_price", nullable = false)
 	private int fixedPrice;
+	@Column(name = "customer_start_date", nullable = false)
+	private String customerStartDate;
+	@Column(name = "customer_end_date", nullable = false)
+	private String customerEndDate;
+	@Column(name = "plumber_start_date", nullable = false)
+	private String plumberStartDate;
+	@Column(name = "plumber_end_date", nullable = false)
+	private String plumberEndDate;
+	@Column(name = "finished", nullable = false)
+	private boolean finished;
 	@Transient
 	private String flag;
 	@Transient

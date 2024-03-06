@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.plumber.dao.UserRepository;
 import com.plumber.entity.Customer;
+import com.plumber.entity.JobAccept;
 import com.plumber.entity.JobInvitation;
 import com.plumber.entity.JobQuotes;
 import com.plumber.entity.Jobs;
@@ -69,6 +70,18 @@ public class CustomerController {
 		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
 				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
 	}
+	@GetMapping("/finished-customer-jobs")
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> FinishedCustomerJobs() throws APIException {
+		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userprincipal.getId() > 0) {
+			List<Jobs> response = repo.finishedCustomerJobs(userprincipal.getId());
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "Customer Job details", response));
+		}
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
+	}
 
 	@GetMapping("/customer-plumber-details")
 	public ResponseEntity<com.plumber.response.APIResponse<Object>> plumberDetails() throws APIException {
@@ -108,7 +121,7 @@ public class CustomerController {
 		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
 				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
 	}
-	
+
 	@GetMapping("/get-customer-quotes")
 	public ResponseEntity<com.plumber.response.APIResponse<Object>> getCustomerQuotes() throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
@@ -121,5 +134,19 @@ public class CustomerController {
 		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
 				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
 	}
+
+	@PostMapping("/job-accept")
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> jobAccept(@RequestBody JobAccept request)
+			throws APIException {
+		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userprincipal.getId() > 0) {
+			repo.JobsAccept(request, userprincipal.getId());
+			return ResponseEntity.status(200).body(ResponseBuilder.build("Success", "Job Accepted Successfully", null));
+		}
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person.", null));
+	}
+	
 
 }

@@ -56,9 +56,16 @@ public class RegisterRepoImpl implements RegisterRepository {
 			obj.setPostCode(request.getPostCode());
 			obj.setMobile(request.getMobile());
 			profileRepo.updateProfile(obj, userId);
-			return true;         
+			return true;
 		} else {
 			throw new APIException("422", "You Are Already Register with us.");
 		}
+	}
+
+	public void userNotify(String message, int userId) {
+		MapSqlParameterSource param = new MapSqlParameterSource();
+		param.addValue("userId", userId);
+		param.addValue("message", message);
+		namedJdbcTemplate.update("insert into notify (user_id,message) value(:userId,:message)", param);
 	}
 }

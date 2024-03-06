@@ -63,6 +63,11 @@ public class AdminServiceImpl implements AdminService {
 		return repo.getAdminJobQoutes(id);
 	}
 
+	@Override
+	public List<Jobs> finishedAdminJobs(Long id) throws APIException {
+		return repo.finishedAdminJobs(id);
+	}
+
 	
 
 }

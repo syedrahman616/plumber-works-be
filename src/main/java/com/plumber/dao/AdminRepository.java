@@ -29,4 +29,6 @@ public interface AdminRepository {
 
 	List<JobQuotes> getAdminJobQoutes(Long id)throws APIException;
 
+	List<Jobs> finishedAdminJobs(Long id)throws APIException;
+
 }

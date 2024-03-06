@@ -3,10 +3,12 @@ package com.plumber.entity;
 import lombok.Data;
 
 @Data
-public class Skill {
+public class JobAccept {
 	private int id;
+	private double price;
+	private int jobId;
 	private int plumberId;
 	private int customerId;
-	private int jobId;
-	private int rating;
+	private String action;
+
 }

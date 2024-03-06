@@ -188,4 +188,18 @@ public class AdminController {
 		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
 				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
 	}
+	
+	@GetMapping("/finished-admin-jobs")
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> FinishedAdminJobs() throws APIException {
+		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		Optional<PlumberUser> user = usrRepo.findById(userprincipal.getId());
+		if (userprincipal.getId() > 0 && user.get().getUserRole().equalsIgnoreCase("Admin")) {
+			List<Jobs> response = repo.finishedAdminJobs(userprincipal.getId());
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "Customer Job details", response));
+		}
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
+	}
 }

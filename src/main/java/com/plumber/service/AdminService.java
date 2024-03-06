@@ -29,4 +29,6 @@ public interface AdminService {
 
 	List<JobQuotes> getAdminQoutes(Long id)throws APIException;
 
+	List<Jobs> finishedAdminJobs(Long id)throws APIException;
+
 }

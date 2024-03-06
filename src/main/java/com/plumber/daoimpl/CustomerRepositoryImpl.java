@@ -18,6 +18,7 @@ import com.plumber.dao.JobRepository;
 import com.plumber.dao.PlumberUserRepository;
 import com.plumber.dao.UserRepository;
 import com.plumber.entity.Customer;
+import com.plumber.entity.JobAccept;
 import com.plumber.entity.JobInvitation;
 import com.plumber.entity.JobQuotes;
 import com.plumber.entity.Jobs;
@@ -44,6 +45,9 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 
 	@Autowired
 	PlumberUserRepository plumberRepo;
+
+	@Autowired
+	RegisterRepoImpl regRepo;
 
 	@Override
 	public APIResponse<Object> customerProfile(Customer request, Long id) throws APIException {
@@ -116,9 +120,9 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 		if (user.get().getUserRole().equalsIgnoreCase("customer")) {
 			MapSqlParameterSource param = new MapSqlParameterSource();
 			param.addValue("customer_id", id);
-			response = jdbcTemplate.query("select * from job tj left join plumber tp on tj.plumber_id=tp.plumber_id\r\n"
-					+ "left join customer tc on tj.customer_id=tc.customer_id \r\n"
-					+ "where tj.customer_id=:customer_id", param, new JobMapper());
+			response = jdbcTemplate.query("select * from job tj left join plumber tp on tj.plumber_id=tp.plumber_id "
+					+ "left join customer tc on tj.customer_id=tc.customer_id "
+					+ "where tj.customer_id=:customer_id and finished=false", param, new JobMapper());
 		}
 		return response;
 	}
@@ -140,6 +144,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 			obj.setImage1(rs.getString("image1"));
 			obj.setImage2(rs.getString("image2"));
 			obj.setVideo(rs.getString("video"));
+			obj.setFixedPrice(rs.getInt("fixed_price"));
+			obj.setFinished(rs.getBoolean("finished"));
+			obj.setCustomerStartDate(rs.getString("customer_start_date"));
+			obj.setPlumberStartDate(rs.getString("plumber_start_date"));
+			obj.setCustomerEndDate(rs.getString("customer_end_date"));
+			obj.setPlumberEndDate(rs.getString("plumber_end_date"));
 			return obj;
 		}
 	}
@@ -148,10 +158,29 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 	public List<Plumber> plumberDetails(Long id) throws APIException {
 		Optional<PlumberUser> user = userRepo.findById(id);
 		if (user.isPresent() && user.get().getUserRole().equalsIgnoreCase("customer")) {
-			List<Plumber> plumber = plumberRepo.findByPlumbers();
+			List<Plumber> plumber = jdbcTemplate.query(
+					"select * from plumber tp ,user tu where tp.plumber_id=tu.id and tu.verified=true",
+					new PlumberMapper());
 			return plumber;
 		} else {
 			throw new APIException("21", "You Are Not Authorized Person.");
+		}
+	}
+
+	private static final class PlumberMapper implements RowMapper<Plumber> {
+
+		@Override
+		public Plumber mapRow(ResultSet rs, int rowNum) throws SQLException {
+			Plumber obj = new Plumber();
+			obj.setId(rs.getLong("id"));
+			obj.setPostCode(rs.getString("tp.postcode"));
+			obj.setPlumberId(rs.getInt("plumber_id"));
+			obj.setFirstName(rs.getString("tp.first_name"));
+			obj.setAddress(rs.getString("tp.address"));
+			obj.setLastName(rs.getString("tp.last_name"));
+			obj.setUserEmail(rs.getString("tu.user_name"));
+			obj.setCity(rs.getString("tp.city"));
+			return obj;
 		}
 	}
 
@@ -170,6 +199,8 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 				jdbcTemplate.update(
 						"insert into job_invite(job_id,plumber_id,price,description,accept) value(:job_id,:plumber_id,:price,:description,false)",
 						param);
+				String message = "You have new job invitation from customer.";
+				regRepo.userNotify(message, request.getPlumberId());
 			} else {
 				throw new APIException("21", "You are already inivited this job.");
 			}
@@ -260,4 +291,65 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 			return obj;
 		}
 	}
+
+	@Override
+	public void JobAccept(JobAccept request, Long id) throws APIException {
+		MapSqlParameterSource param = new MapSqlParameterSource();
+		param.addValue("id", request.getId());
+		int count = request.getAction().equalsIgnoreCase("invitation")
+				? jdbcTemplate.queryForObject("select count(*) from job_invite where id=:id", param, Integer.class)
+				: jdbcTemplate.queryForObject("select count(*) from job_quotes where id=:id", param, Integer.class);
+		param.addValue("Job_id", request.getJobId());
+		if (count > 0) {
+			JobAccept job = request.getAction().equalsIgnoreCase("invitation")
+					? jdbcTemplate.queryForObject("select * from job_invite where id=:id", param, new JobAcceptMapper())
+					: jdbcTemplate.queryForObject("select * from job_quotes where id=:id", param,
+							new JobAcceptMapper());
+			param.addValue("price", job.getPrice());
+			param.addValue("plumber_id", job.getPlumberId());
+			param.addValue("job_id", job.getJobId());
+			if (request.getAction().equalsIgnoreCase("invitation")) {
+				jdbcTemplate.update("update job_invite set accept=true where id=:id", param);
+				Optional<Jobs> jobId = jobRepo.findById((long) job.getJobId());
+				String message = "Your Job Invitation was accepted.";
+				regRepo.userNotify(message, (int) jobId.get().getCustomerId());
+			} else if (request.getAction().equalsIgnoreCase("quotes")) {
+				jdbcTemplate.update("update job_quotes set accept=true where id=:id", param);
+				String message = "Your Job Quotes was accepted.";
+				regRepo.userNotify(message, job.getPlumberId());
+			} else {
+				throw new APIException("21", "Invalid Data.");
+			}
+			jdbcTemplate.update(
+					"update job set isFixed=true,fixed_price=:price,plumber_id=:plumber_id where id=:job_id; ", param);
+		}
+	}
+
+	private static final class JobAcceptMapper implements RowMapper<JobAccept> {
+
+		@Override
+		public JobAccept mapRow(ResultSet rs, int rowNum) throws SQLException {
+			JobAccept obj = new JobAccept();
+			obj.setPlumberId(rs.getInt("plumber_id"));
+			obj.setPrice(rs.getDouble("price"));
+			obj.setJobId(rs.getInt("job_id"));
+			return obj;
+		}
+	}
+
+	@Override
+	public List<Jobs> finishedCustomerJob(Long id) throws APIException {
+		Optional<PlumberUser> user = userRepo.findById(id);
+		List<Jobs> response = new ArrayList<>();
+		if (user.get().getUserRole().equalsIgnoreCase("customer")) {
+			MapSqlParameterSource param = new MapSqlParameterSource();
+			param.addValue("customer_id", id);
+			response = jdbcTemplate.query("select * from job tj left join plumber tp on tj.plumber_id=tp.plumber_id "
+					+ "left join customer tc on tj.customer_id=tc.customer_id "
+					+ "where tj.customer_id=:customer_id and tj.finished=true", param, new JobMapper());
+		}
+		return response;
+
+	}
+
 }

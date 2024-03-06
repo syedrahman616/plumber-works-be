@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.plumber.dao.CustomerRepository;
 import com.plumber.entity.Customer;
+import com.plumber.entity.JobAccept;
 import com.plumber.entity.JobInvitation;
 import com.plumber.entity.JobQuotes;
 import com.plumber.entity.Plumber;
@@ -56,6 +57,17 @@ public class CustomerServiceImpl implements CustomerService {
 	@Override
 	public List<JobQuotes> getCustomerQoutes(Long id) throws APIException {
 		return repo.getCustomerQuotes(id);
+	}
+
+	@Override
+	public void JobsAccept(JobAccept request, Long id) throws APIException {
+		repo.JobAccept(request,id);
+		
+	}
+
+	@Override
+	public List<com.plumber.entity.Jobs> finishedCustomerJobs(Long id) throws APIException {
+		return repo.finishedCustomerJob(id);
 	}
 
 }

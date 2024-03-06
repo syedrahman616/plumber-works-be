@@ -55,6 +55,11 @@ public class PlumberServiceImpl implements PlumberService{
 	public List<JobQuotes> getPlumberQoutes(Long id) throws APIException {
 		return repo.getPlumberJobQuotes(id);
 	}
+
+	@Override
+	public List<Jobs> plumberFinishedJobs(Long id) throws APIException {
+		return repo.plumberFinishedJobs(id);
+	}
 	
 
 }

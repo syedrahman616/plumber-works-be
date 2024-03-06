@@ -45,14 +45,17 @@ public class PlumberController {
 	}
 
 	@PostMapping("/add-skill")
-	public APIResponse<Object> addSkill(@RequestBody Skill request) throws APIException {
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> addSkill(@RequestBody Skill request)
+			throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		if (userprincipal.getId() > 0) {
 			repo.addSkill(request, userprincipal.getId());
-			return null;
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "Skill updated", null));
 		}
-		return ResponseBuilder.build("Failure", "Your Are Not Authorized Person", null);
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
 	}
 
 	@GetMapping("/plumber-jobs")
@@ -68,6 +71,19 @@ public class PlumberController {
 				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
 	}
 
+	@GetMapping("/plumber-finished-jobs")
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> plumberFinishedJobs() throws APIException {
+		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userprincipal.getId() > 0) {
+			List<Jobs> response = repo.plumberFinishedJobs(userprincipal.getId());
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "plumber Job details", response));
+		}
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
+	}
+	
 	@GetMapping("/all-jobs")
 	public ResponseEntity<com.plumber.response.APIResponse<Object>> allJobs() throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
@@ -106,7 +122,7 @@ public class PlumberController {
 		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
 				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
 	}
-	
+
 	@GetMapping("/get-plumber-quotes")
 	public ResponseEntity<com.plumber.response.APIResponse<Object>> getPlumberQuotes() throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
@@ -120,5 +136,17 @@ public class PlumberController {
 				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
 	}
 	
+//	@GetMapping("/finished-plumber-jobs")
+//	public ResponseEntity<com.plumber.response.APIResponse<Object>> FinishedPlumberJobs() throws APIException {
+//		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+//				.getPrincipal();
+//		if (userprincipal.getId() > 0) {
+//			List<Jobs> response = repo.plumberFinishedJobs(userprincipal.getId());
+//			return ResponseEntity.status(HttpStatus.OK)
+//					.body(ResponseBuilder.build("Success", "Customer Job details", response));
+//		}
+//		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+//				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
+//	}
 
 }

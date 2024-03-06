@@ -26,4 +26,6 @@ public interface PlumberService {
 
 	List<JobQuotes> getPlumberQoutes(Long id)throws APIException;
 
+	List<Jobs> plumberFinishedJobs(Long id)throws APIException;
+
 }

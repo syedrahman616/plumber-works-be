@@ -3,6 +3,7 @@ package com.plumber.service;
 import java.util.List;
 
 import com.plumber.entity.Customer;
+import com.plumber.entity.JobAccept;
 import com.plumber.entity.JobInvitation;
 import com.plumber.entity.JobQuotes;
 import com.plumber.entity.Jobs;
@@ -25,5 +26,9 @@ public interface CustomerService {
 	List<JobInvitation> getJobInvitation(Long id)throws APIException;
 
 	List<JobQuotes> getCustomerQoutes(Long id)throws APIException;
+
+	void JobsAccept(JobAccept request, Long id)throws APIException;
+
+	List<com.plumber.entity.Jobs> finishedCustomerJobs(Long id)throws APIException;
 
 }

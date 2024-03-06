@@ -82,8 +82,37 @@ public class AdminRepositoryImpl implements AdminRepository {
 
 	@Override
 	public List<Jobs> adminJobs() throws APIException {
-		List<Jobs> response = jobRepo.findAll();
+		List<Jobs> response = jdbcTemplate.query(
+				"select * from job tj left join customer tc on tj.customer_id=tc.customer_id left join plumber tp on tj.plumber_id=tp.plumber_id where tj.finished=false",
+				new JobMapper());
 		return response;
+	}
+
+	private static final class JobMapper implements RowMapper<Jobs> {
+
+		@Override
+		public Jobs mapRow(ResultSet rs, int rowNum) throws SQLException {
+			Jobs obj = new Jobs();
+			obj.setId(rs.getLong("tj.id"));
+			obj.setPostCode(rs.getString("postcode"));
+			obj.setCustomerId(rs.getLong("customer_id"));
+			obj.setPlumberId(rs.getLong("plumber_id"));
+			obj.setCustomerName(rs.getString("tc.first_name") + " " + rs.getString("tc.last_name"));
+			obj.setPlumberName(rs.getString("tp.first_name") + " " + rs.getString("tp.last_name"));
+			obj.setAddress(rs.getString("tj.address"));
+			obj.setJobTitle(rs.getString("job_title"));
+			obj.setDescription(rs.getString("tj.description"));
+			obj.setImage1(rs.getString("image1"));
+			obj.setImage2(rs.getString("image2"));
+			obj.setVideo(rs.getString("video"));
+			obj.setFinished(rs.getBoolean("finished"));
+			obj.setFixedPrice(rs.getInt("fixed_price"));
+			obj.setCustomerStartDate(rs.getString("customer_start_date"));
+			obj.setPlumberStartDate(rs.getString("plumber_start_date"));
+			obj.setCustomerEndDate(rs.getString("customer_end_date"));
+			obj.setPlumberEndDate(rs.getString("plumber_end_date"));
+			return obj;
+		}
 	}
 
 	@Override
@@ -245,6 +274,14 @@ public class AdminRepositoryImpl implements AdminRepository {
 			obj.setVideo(rs.getString("video"));
 			return obj;
 		}
+	}
+
+	@Override
+	public List<Jobs> finishedAdminJobs(Long id) throws APIException {
+		List<Jobs> response = jdbcTemplate.query(
+				"select * from job tj left join customer tc on tj.customer_id=tc.customer_id left join plumber tp on tj.plumber_id=tp.plumber_id where tj.finished=true",
+				new JobMapper());
+		return response;
 	}
 
 }

@@ -3,6 +3,7 @@ package com.plumber.dao;
 import java.util.List;
 
 import com.plumber.entity.Customer;
+import com.plumber.entity.JobAccept;
 import com.plumber.entity.JobInvitation;
 import com.plumber.entity.JobQuotes;
 import com.plumber.entity.Jobs;
@@ -25,5 +26,9 @@ public interface CustomerRepository {
 	List<JobInvitation> getJobInvitation(Long id)throws APIException;
 
 	List<JobQuotes> getCustomerQuotes(Long id)throws APIException;
+
+	void JobAccept(JobAccept request, Long id)throws APIException;
+
+	List<Jobs> finishedCustomerJob(Long id)throws APIException;
 
 }

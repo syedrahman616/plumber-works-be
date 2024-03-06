@@ -19,7 +19,7 @@ public interface UserprofileRepository {
 
 	void jobEndDate(int jobId, Long id)throws APIException;
 
-	String uploadFile(MultipartFile uploadFile, String location, Long id)throws APIException;
+	String uploadFile(MultipartFile uploadFile, Long id)throws APIException;
 
 	Resource getFiles(String fileName)throws APIException;
 

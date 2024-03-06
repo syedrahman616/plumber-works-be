@@ -167,11 +167,12 @@ public class UserDaoImpl implements UserprofileRepository {
 	}
 
 	@Override
-	public String uploadFile(MultipartFile uploadFile, String location, Long id) throws APIException {
+	public String uploadFile(MultipartFile uploadFile, Long id) throws APIException {
 		if (uploadFile.isEmpty()) {
 			throw new APIException("21", "Please select a file to upload");
 		}
 		try {
+			System.out.println(uploadDirectory);
 			String originalFileName = uploadFile.getOriginalFilename();
 			String fileExtension = "";
 			if (originalFileName != null) {

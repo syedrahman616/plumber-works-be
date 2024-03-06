@@ -96,13 +96,13 @@ public class UserController {
 
 	@PostMapping("/upload-files")
 	public ResponseEntity<com.plumber.response.APIResponse<Object>> uploadFiles(
-			@RequestParam("file") MultipartFile uploadFile, @RequestParam("location") String location)
+			@RequestParam("file") MultipartFile uploadFile)
 			throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		Optional<PlumberUser> user = usrRepo.findById(userprincipal.getId());
 		if (user.isPresent()) {
-			String response = repo.uploadFile(uploadFile, location, userprincipal.getId());
+			String response = repo.uploadFile(uploadFile, userprincipal.getId());
 			return ResponseEntity.status(HttpStatus.OK)
 					.body(ResponseBuilder.build("Success", "File uploaded successfully.", response));
 		}

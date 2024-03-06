@@ -19,7 +19,7 @@ public interface UserService {
 
 	void JobEndDate(int jobId, Long id)throws APIException;
 
-	String uploadFile(MultipartFile uploadFile, String location, Long id)throws APIException;
+	String uploadFile(MultipartFile uploadFile, Long id)throws APIException;
 
 	Resource getFile(String fileName)throws APIException;
 

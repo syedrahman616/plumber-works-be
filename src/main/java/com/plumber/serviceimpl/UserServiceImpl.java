@@ -45,8 +45,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public String uploadFile(MultipartFile uploadFile, String location, Long id) throws APIException {
-		return repo.uploadFile(uploadFile, location, id);
+	public String uploadFile(MultipartFile uploadFile, Long id) throws APIException {
+		return repo.uploadFile(uploadFile, id);
 
 	}
 

@@ -17,5 +17,6 @@ public class UserProfile {
 	private String city;
 	private String postCode;
 	private String mobile;
+	private double skill;
 
 }

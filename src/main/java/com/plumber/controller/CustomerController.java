@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plumber.dao.UserRepository;
@@ -146,6 +147,19 @@ public class CustomerController {
 		}
 		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
 				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person.", null));
+	}
+	@PostMapping("/finished-customer")
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> FinishedPlumberJobs(
+			@RequestParam("jobId") int jobId) throws APIException {
+		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userprincipal.getId() > 0) {
+			 repo.finsihedCustomerJob(userprincipal.getId(),jobId);
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "Approved Finsihed Job.", null));
+		}
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
 	}
 	
 

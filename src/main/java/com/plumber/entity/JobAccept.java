@@ -10,5 +10,7 @@ public class JobAccept {
 	private int plumberId;
 	private int customerId;
 	private String action;
+	private String startDate;
+	private String endDate;
 
 }

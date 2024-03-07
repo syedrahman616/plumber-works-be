@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import com.plumber.dao.CustomerRepository;
 import com.plumber.dao.CustomerUserRepository;
+import com.plumber.dao.JobQoutesRepository;
 import com.plumber.dao.JobRepository;
 import com.plumber.dao.PlumberUserRepository;
 import com.plumber.dao.UserRepository;
@@ -49,6 +50,9 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 	@Autowired
 	RegisterRepoImpl regRepo;
 
+	@Autowired
+	JobQoutesRepository jobQoutesRepo;
+
 	@Override
 	public APIResponse<Object> customerProfile(Customer request, Long id) throws APIException {
 		APIResponse<Object> response = null;
@@ -72,7 +76,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 		} else if (user.isPresent() && request.getFlag().equalsIgnoreCase("delete")) {
 			Optional<Customer> customer = customerRepo.findById(request.getId());
 			if (customer.isPresent()) {
+				Optional<PlumberUser> users = userRepo.findById(customer.get().getCustomerId());
+				PlumberUser obj = new PlumberUser();
+				obj.setStatus(false);
+				userRepo.save(obj);
 				customerRepo.deleteById(request.getId());
+
 				response = ResponseBuilder.build("Success", "Deleted Successfully", null);
 			} else {
 				throw new APIException("21", "Invalid Data.");
@@ -146,10 +155,8 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 			obj.setVideo(rs.getString("video"));
 			obj.setFixedPrice(rs.getInt("fixed_price"));
 			obj.setFinished(rs.getBoolean("finished"));
-			obj.setCustomerStartDate(rs.getString("customer_start_date"));
-			obj.setPlumberStartDate(rs.getString("plumber_start_date"));
-			obj.setCustomerEndDate(rs.getString("customer_end_date"));
-			obj.setPlumberEndDate(rs.getString("plumber_end_date"));
+			obj.setStartDate(rs.getString("start_date"));
+			obj.setEndDate(rs.getString("end_date"));
 			return obj;
 		}
 	}
@@ -158,6 +165,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 	public List<Plumber> plumberDetails(Long id) throws APIException {
 		Optional<PlumberUser> user = userRepo.findById(id);
 		if (user.isPresent() && user.get().getUserRole().equalsIgnoreCase("customer")) {
+			MapSqlParameterSource param = new MapSqlParameterSource();
+			param.addValue("customer_id", id);
+			List<Integer> AlreadyInvitePlumberId = jdbcTemplate.queryForList(
+					"select ti.plumber_id from job tj ,job_invite ti where tj.id=ti.job_id and tj.customer_id=:customer_id",
+					param, Integer.class);
 			List<Plumber> plumber = jdbcTemplate.query(
 					"select * from plumber tp ,user tu where tp.plumber_id=tu.id and tu.verified=true",
 					new PlumberMapper());
@@ -167,12 +179,24 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 		}
 	}
 
-	private static final class PlumberMapper implements RowMapper<Plumber> {
+	private class PlumberMapper implements RowMapper<Plumber> {
 
 		@Override
 		public Plumber mapRow(ResultSet rs, int rowNum) throws SQLException {
 			Plumber obj = new Plumber();
 			obj.setId(rs.getLong("id"));
+			MapSqlParameterSource param = new MapSqlParameterSource();
+			param.addValue("plumber_id", rs.getInt("plumber_id"));
+			int totalCount = jdbcTemplate.queryForObject("select count(*) from skill where plumber_id=:plumber_id",
+					param, Integer.class);
+			double ratingPercentage = 0;
+			if (totalCount > 0) {
+				int rating = jdbcTemplate.queryForObject(
+						"select sum(rating) as totalRating from skill where plumber_id=:plumber_id", param,
+						Integer.class);
+				 ratingPercentage = Math.round(((double) rating / totalCount) / 5 * 100);
+			}
+			obj.setSkill(ratingPercentage);
 			obj.setPostCode(rs.getString("tp.postcode"));
 			obj.setPlumberId(rs.getInt("plumber_id"));
 			obj.setFirstName(rs.getString("tp.first_name"));
@@ -310,18 +334,27 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 			param.addValue("job_id", job.getJobId());
 			if (request.getAction().equalsIgnoreCase("invitation")) {
 				jdbcTemplate.update("update job_invite set accept=true where id=:id", param);
+				param.addValue("start_date", request.getStartDate());
+				param.addValue("end_date", request.getEndDate());
+				jdbcTemplate.update(
+						"update job set isFixed=true,fixed_price=:price,plumber_id=:plumber_id,start_date=:start_date,end_date=:end_date where id=:job_id; ",
+						param);
 				Optional<Jobs> jobId = jobRepo.findById((long) job.getJobId());
 				String message = "Your Job Invitation was accepted.";
 				regRepo.userNotify(message, (int) jobId.get().getCustomerId());
 			} else if (request.getAction().equalsIgnoreCase("quotes")) {
+				Optional<JobQuotes> quotes = jobQoutesRepo.findById((long) request.getId());
+				param.addValue("start_date", quotes.get().getStartDate());
+				param.addValue("end_date", quotes.get().getEndDate());
 				jdbcTemplate.update("update job_quotes set accept=true where id=:id", param);
+				jdbcTemplate.update(
+						"update job set isFixed=true,fixed_price=:price,plumber_id=:plumber_id,start_date=:start_date,end_date=:end_date where id=:job_id; ",
+						param);
 				String message = "Your Job Quotes was accepted.";
 				regRepo.userNotify(message, job.getPlumberId());
 			} else {
 				throw new APIException("21", "Invalid Data.");
 			}
-			jdbcTemplate.update(
-					"update job set isFixed=true,fixed_price=:price,plumber_id=:plumber_id where id=:job_id; ", param);
 		}
 	}
 
@@ -349,7 +382,23 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 					+ "where tj.customer_id=:customer_id and tj.finished=true", param, new JobMapper());
 		}
 		return response;
+	}
 
+	@Override
+	public void finishedCustomerjob(Long id, int jobId) throws APIException {
+		MapSqlParameterSource param = new MapSqlParameterSource();
+		Optional<PlumberUser> user = userRepo.findById(id);
+		if (user.get().getUserRole().equalsIgnoreCase("customer")) {
+			Optional<Jobs> job = jobRepo.findById((long) jobId);
+			if (job.isPresent() && job.get().getCustomerId() == id) {
+				param.addValue("job_id", jobId);
+				jdbcTemplate.update("update job set finished=true where id=:job_id", param);
+				String message = "Customer Approved your job.";
+				regRepo.userNotify(message, (int) job.get().getPlumberId());
+			} else {
+				throw new APIException("21", "You are Invalid Customer.");
+			}
+		}
 	}
 
 }

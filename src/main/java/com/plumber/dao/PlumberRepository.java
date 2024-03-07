@@ -28,4 +28,6 @@ public interface PlumberRepository {
 
 	List<Jobs> plumberFinishedJobs(Long id)throws APIException;
 
+	void finishedPlumberJobs(Long id, int jobId)throws APIException;
+
 }

@@ -100,6 +100,18 @@ public class UserDaoImpl implements UserprofileRepository {
 				obj.setMobile(customer.get().getMobile());
 			} else if ("plumber".equalsIgnoreCase(user.get().getUserRole())) {
 				Optional<Plumber> plumber = plumberRepo.findByPlumberId(id);
+				MapSqlParameterSource param = new MapSqlParameterSource();
+				param.addValue("plumber_id", plumber.get().getPlumberId());
+				int totalCount = jdbcTemplate.queryForObject("select count(*) from skill where plumber_id=:plumber_id",
+						param, Integer.class);
+				double ratingPercentage = 0;
+				if (totalCount > 0) {
+					int rating = jdbcTemplate.queryForObject(
+							"select sum(rating) as totalRating from skill where plumber_id=:plumber_id", param,
+							Integer.class);
+					 ratingPercentage = Math.round(((double) rating / totalCount) / 5 * 100);
+				}
+				obj.setSkill(ratingPercentage);
 				obj.setId(plumber.get().getId());
 				obj.setFirstName(plumber.get().getFirstName());
 				obj.setLastName(plumber.get().getLastName());

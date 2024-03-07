@@ -31,4 +31,6 @@ public interface CustomerRepository {
 
 	List<Jobs> finishedCustomerJob(Long id)throws APIException;
 
+	void finishedCustomerjob(Long id, int jobId)throws APIException;
+
 }

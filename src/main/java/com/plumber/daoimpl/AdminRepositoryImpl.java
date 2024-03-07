@@ -55,6 +55,18 @@ public class AdminRepositoryImpl implements AdminRepository {
 			if (obj.getPlumberId() > 0) {
 				Optional<PlumberUser> user = userRepo.findById(obj.getPlumberId());
 				if (user.isPresent()) {
+					MapSqlParameterSource param = new MapSqlParameterSource();
+					param.addValue("plumber_id", user.get().getId());
+					int totalCount = jdbcTemplate.queryForObject(
+							"select count(*) from skill where plumber_id=:plumber_id", param, Integer.class);
+					double ratingPercentage = 0;
+					if (totalCount > 0) {
+						int rating = jdbcTemplate.queryForObject(
+								"select sum(rating) as totalRating from skill where plumber_id=:plumber_id", param,
+								Integer.class);
+						ratingPercentage = Math.round(((double) rating / totalCount) / 5 * 100);
+					}
+					obj.setSkill(ratingPercentage);
 					obj.setUserEmail(user.get().getEmail());
 					finalResponse.add(obj);
 				}
@@ -107,10 +119,8 @@ public class AdminRepositoryImpl implements AdminRepository {
 			obj.setVideo(rs.getString("video"));
 			obj.setFinished(rs.getBoolean("finished"));
 			obj.setFixedPrice(rs.getInt("fixed_price"));
-			obj.setCustomerStartDate(rs.getString("customer_start_date"));
-			obj.setPlumberStartDate(rs.getString("plumber_start_date"));
-			obj.setCustomerEndDate(rs.getString("customer_end_date"));
-			obj.setPlumberEndDate(rs.getString("plumber_end_date"));
+			obj.setStartDate(rs.getString("start_date"));
+			obj.setEndDate(rs.getString("end_date"));
 			return obj;
 		}
 	}

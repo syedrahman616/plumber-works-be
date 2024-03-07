@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.batch.BatchProperties.Job;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -18,7 +19,6 @@ import com.plumber.dao.JobRepository;
 import com.plumber.dao.PlumberRepository;
 import com.plumber.dao.PlumberUserRepository;
 import com.plumber.dao.UserRepository;
-import com.plumber.entity.Customer;
 import com.plumber.entity.JobInvitation;
 import com.plumber.entity.JobQuotes;
 import com.plumber.entity.Jobs;
@@ -50,6 +50,9 @@ public class PlumberRepositoryImpl implements PlumberRepository {
 	@Autowired
 	JobQoutesRepository jobQoutesRepo;
 
+	@Autowired
+	RegisterRepoImpl regImpl;
+
 	@Override
 	public APIResponse<Object> plumberProfile(Plumber request, Long id) throws APIException {
 		APIResponse<Object> response = null;
@@ -74,6 +77,10 @@ public class PlumberRepositoryImpl implements PlumberRepository {
 			} else if (user.isPresent() && request.getFlag().equalsIgnoreCase("delete")) {
 				Optional<Plumber> plumber = plumberRepo.findById(request.getId());
 				if (plumber.isPresent()) {
+					Optional<PlumberUser> users = userRepo.findById(plumber.get().getPlumberId());
+					PlumberUser obj = new PlumberUser();
+					obj.setStatus(false);
+					userRepo.save(obj);
 					plumberRepo.deleteById(request.getId());
 					response = ResponseBuilder.build("Success", "Deleted Successfully", null);
 				} else {
@@ -106,6 +113,8 @@ public class PlumberRepositoryImpl implements PlumberRepository {
 			} else {
 				throw new APIException("21", "This Job Already Skill rating added.");
 			}
+		}else {
+			throw new APIException("21", "Invalid Data.");
 		}
 
 	}
@@ -143,10 +152,8 @@ public class PlumberRepositoryImpl implements PlumberRepository {
 			obj.setVideo(rs.getString("video"));
 			obj.setFixedPrice(rs.getInt("fixed_price"));
 			obj.setFinished(rs.getBoolean("finished"));
-			obj.setCustomerStartDate(rs.getString("customer_start_date"));
-			obj.setPlumberStartDate(rs.getString("plumber_start_date"));
-			obj.setCustomerEndDate(rs.getString("customer_end_date"));
-			obj.setPlumberEndDate(rs.getString("plumber_end_date"));
+			obj.setStartDate(rs.getString("start_date"));
+			obj.setEndDate(rs.getString("end_date"));
 			return obj;
 		}
 	}
@@ -155,18 +162,23 @@ public class PlumberRepositoryImpl implements PlumberRepository {
 	public List<Jobs> allJobs(Long id) throws APIException {
 		Optional<PlumberUser> user = userRepo.findById(id);
 		if (user.get().getUserRole().equalsIgnoreCase("plumber")) {
-			List<Jobs> response = new ArrayList<>();
-			response = jobRepo.findAll();
-			for (Jobs jb : response) {
-				Optional<Plumber> plumber = plumberRepo.findById(jb.getPlumberId());
-				if (plumber.isPresent()) {
-					jb.setPlumberName(plumber.get().getFirstName() + " " + plumber.get().getLastName());
-				}
-				Optional<Customer> customer = customerRepo.findById(jb.getCustomerId());
-				if (customer.isPresent()) {
-					jb.setCustomerName(customer.get().getFirstName() + " " + customer.get().getLastName());
-				}
-			}
+			List<Jobs> response = jdbcTemplate.query(
+					"select * from job tj left join plumber tp on tj.plumber_id=tp.plumber_id left join customer tc on tj.customer_id=tc.customer_id \r\n"
+							+ "where finished = false and tj.plumber_id=0",
+					new JobMapper());
+//			List<Jobs> job = new ArrayList<>();
+//			response = jobRepo.findAll();
+//			for (Jobs jb : response) {
+//				Optional<Plumber> plumber = plumberRepo.findById(jb.getPlumberId());
+//				if (plumber.isPresent()) {
+//					jb.setPlumberName(plumber.get().getFirstName() + " " + plumber.get().getLastName());
+//				}
+//				Optional<Customer> customer = customerRepo.findById(jb.getCustomerId());
+//				if (customer.isPresent()) {
+//					jb.setCustomerName(customer.get().getFirstName() + " " + customer.get().getLastName());
+//				}
+//				job.add(jb);
+//			}
 			return response;
 		} else {
 			throw new APIException("21", "You Are Not Authorized Person.");
@@ -312,6 +324,21 @@ public class PlumberRepositoryImpl implements PlumberRepository {
 					param, new JobMapper());
 		}
 		return response;
+	}
+
+	@Override
+	public void finishedPlumberJobs(Long id, int jobId) throws APIException {
+		MapSqlParameterSource param = new MapSqlParameterSource();
+		Optional<PlumberUser> user = userRepo.findById(id);
+		if (user.get().getUserRole().equalsIgnoreCase("plumber")) {
+			Optional<Jobs> job = jobRepo.findById((long) jobId);
+			if (job.isPresent() && job.get().getPlumberId() == id) {
+				param.addValue("job_id", jobId);
+				jdbcTemplate.update("update job set plumber_finished=true where id=:job_id", param);
+				String message = "plumber finished your job kindly Check and Approved.";
+				regImpl.userNotify(message, (int) job.get().getCustomerId());
+			}
+		}
 	}
 
 }

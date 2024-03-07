@@ -38,7 +38,7 @@ public class RegisterRepoImpl implements RegisterRepository {
 	public boolean userSignUp(SignupRequest request) throws APIException {
 		MapSqlParameterSource param = new MapSqlParameterSource();
 		param.addValue("email", request.getEmail());
-		int count = namedJdbcTemplate.queryForObject("select count(*) from user where user_email=:email", param,
+		int count = namedJdbcTemplate.queryForObject("select count(*) from user where user_email=:email and status=true", param,
 				Integer.class);
 		if (count == 0) {
 			param.addValue("password", request.getPassword());

@@ -70,4 +70,10 @@ public class CustomerServiceImpl implements CustomerService {
 		return repo.finishedCustomerJob(id);
 	}
 
+	@Override
+	public void finsihedCustomerJob(Long id, int jobId) throws APIException {
+		repo.finishedCustomerjob(id,jobId);
+		
+	}
+
 }

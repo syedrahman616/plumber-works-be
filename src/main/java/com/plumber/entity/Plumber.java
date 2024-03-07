@@ -40,5 +40,7 @@ public class Plumber {
 	@Transient
 	private String flag;
 	@Transient
+	private double skill;
+	@Transient
 	private String userEmail;
 }

@@ -96,8 +96,7 @@ public class UserController {
 
 	@PostMapping("/upload-files")
 	public ResponseEntity<com.plumber.response.APIResponse<Object>> uploadFiles(
-			@RequestParam("file") MultipartFile uploadFile)
-			throws APIException {
+			@RequestParam("file") MultipartFile uploadFile) throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		Optional<PlumberUser> user = usrRepo.findById(userprincipal.getId());

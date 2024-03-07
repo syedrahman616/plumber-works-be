@@ -29,10 +29,12 @@ public class JobQuotes {
 	private long plumberId;
 	@Column(name = "description", nullable = false)
 	private String description;
+	@Column(name = "start_date", nullable = false)
+	private String startDate;
+	@Column(name = "end_date", nullable = false)
+	private String endDate;
 	@Column(name = "hours", nullable = false)
 	private int hours;
-	@Column(name = "rate_per_hour", nullable = false)
-	private int ratePerHour;
 	@Column(name = "price", nullable = false)
 	private double price;
 	@Column(name = "accept", nullable = false)

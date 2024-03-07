@@ -31,4 +31,6 @@ public interface CustomerService {
 
 	List<com.plumber.entity.Jobs> finishedCustomerJobs(Long id)throws APIException;
 
+	void finsihedCustomerJob(Long id, int jobId)throws APIException;
+
 }

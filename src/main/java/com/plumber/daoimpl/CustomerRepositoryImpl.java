@@ -157,6 +157,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 			obj.setFinished(rs.getBoolean("finished"));
 			obj.setStartDate(rs.getString("start_date"));
 			obj.setEndDate(rs.getString("end_date"));
+			obj.setPlumberFinished(rs.getBoolean("plumber_finished"));
 			return obj;
 		}
 	}
@@ -194,7 +195,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 				int rating = jdbcTemplate.queryForObject(
 						"select sum(rating) as totalRating from skill where plumber_id=:plumber_id", param,
 						Integer.class);
-				 ratingPercentage = Math.round(((double) rating / totalCount) / 5 * 100);
+				ratingPercentage = Math.round(((double) rating / totalCount) / 5 * 100);
 			}
 			obj.setSkill(ratingPercentage);
 			obj.setPostCode(rs.getString("tp.postcode"));
@@ -316,6 +317,9 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 		}
 	}
 
+	/**
+	 *
+	 */
 	@Override
 	public void JobAccept(JobAccept request, Long id) throws APIException {
 		MapSqlParameterSource param = new MapSqlParameterSource();
@@ -333,15 +337,22 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 			param.addValue("plumber_id", job.getPlumberId());
 			param.addValue("job_id", job.getJobId());
 			if (request.getAction().equalsIgnoreCase("invitation")) {
-				jdbcTemplate.update("update job_invite set accept=true where id=:id", param);
 				param.addValue("start_date", request.getStartDate());
 				param.addValue("end_date", request.getEndDate());
-				jdbcTemplate.update(
-						"update job set isFixed=true,fixed_price=:price,plumber_id=:plumber_id,start_date=:start_date,end_date=:end_date where id=:job_id; ",
-						param);
-				Optional<Jobs> jobId = jobRepo.findById((long) job.getJobId());
-				String message = "Your Job Invitation was accepted.";
-				regRepo.userNotify(message, (int) jobId.get().getCustomerId());
+				int dateCheck = jdbcTemplate.queryForObject(
+						"select count(*) from job where start_date <=:start_date and end_date >=:end_date and plumber_id=:plumber_id",
+						param, Integer.class);
+				if (dateCheck == 0) {
+					jdbcTemplate.update("update job_invite set accept=true where id=:id", param);
+					jdbcTemplate.update(
+							"update job set isFixed=true,fixed_price=:price,plumber_id=:plumber_id,start_date=:start_date,end_date=:end_date where id=:job_id; ",
+							param);
+					Optional<Jobs> jobId = jobRepo.findById((long) job.getJobId());
+					String message = "Your Job Invitation was accepted.";
+					regRepo.userNotify(message, (int) jobId.get().getCustomerId());
+				} else {
+					throw new APIException("21", "Please select another date.");
+				}
 			} else if (request.getAction().equalsIgnoreCase("quotes")) {
 				Optional<JobQuotes> quotes = jobQoutesRepo.findById((long) request.getId());
 				param.addValue("start_date", quotes.get().getStartDate());
@@ -379,7 +390,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 			param.addValue("customer_id", id);
 			response = jdbcTemplate.query("select * from job tj left join plumber tp on tj.plumber_id=tp.plumber_id "
 					+ "left join customer tc on tj.customer_id=tc.customer_id "
-					+ "where tj.customer_id=:customer_id and tj.finished=true", param, new JobMapper());
+					+ "where tj.customer_id=:customer_id and tj.plumber_finished=true", param, new JobMapper());
 		}
 		return response;
 	}
@@ -399,6 +410,16 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 				throw new APIException("21", "You are Invalid Customer.");
 			}
 		}
+	}
+
+	@Override
+	public List<Plumber> plumberinviteDetails(Long id, int jobId) throws APIException {
+		MapSqlParameterSource param = new MapSqlParameterSource();
+		param.addValue("job_id", jobId);
+		List<Plumber> plumber = jdbcTemplate.query(
+				"select * from plumber tp where not exists(select 1 from job_invite tv where tp.plumber_id=tv.plumber_id and tv.job_id=:job_id);",
+				param, new PlumberMapper());
+		return plumber;
 	}
 
 }

@@ -40,13 +40,13 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public List<Plumber> plumberDetails(Long id) throws APIException {
-		
+
 		return repo.plumberDetails(id);
 	}
 
 	@Override
 	public APIResponse<Object> JobsInvitation(JobInvitation request, Long id) throws APIException {
-		return repo.jobInvitation(request,id);
+		return repo.jobInvitation(request, id);
 	}
 
 	@Override
@@ -61,8 +61,8 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public void JobsAccept(JobAccept request, Long id) throws APIException {
-		repo.JobAccept(request,id);
-		
+		repo.JobAccept(request, id);
+
 	}
 
 	@Override
@@ -72,8 +72,13 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Override
 	public void finsihedCustomerJob(Long id, int jobId) throws APIException {
-		repo.finishedCustomerjob(id,jobId);
-		
+		repo.finishedCustomerjob(id, jobId);
+
+	}
+
+	@Override
+	public List<Plumber> plumberInviteDetails(Long id, int jobId) throws APIException {
+		return repo.plumberinviteDetails(id, jobId);
 	}
 
 }

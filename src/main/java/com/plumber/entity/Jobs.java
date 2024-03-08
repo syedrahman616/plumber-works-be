@@ -55,4 +55,6 @@ public class Jobs {
 	private String customerName;
 	@Transient
 	private String plumberName;
+	@Transient
+	private boolean accept;
 }

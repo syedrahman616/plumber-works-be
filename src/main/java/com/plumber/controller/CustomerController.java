@@ -71,6 +71,7 @@ public class CustomerController {
 		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
 				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
 	}
+
 	@GetMapping("/finished-customer-jobs")
 	public ResponseEntity<com.plumber.response.APIResponse<Object>> FinishedCustomerJobs() throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
@@ -90,6 +91,20 @@ public class CustomerController {
 				.getPrincipal();
 		if (userprincipal.getId() > 0) {
 			List<Plumber> response = repo.plumberDetails(userprincipal.getId());
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(ResponseBuilder.build("Success", "Customer Job details", response));
+		}
+		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
+	}
+
+	@GetMapping("/customer-plumber-invite")
+	public ResponseEntity<com.plumber.response.APIResponse<Object>> customerPlumber(@RequestParam("jobId") int jobId)
+			throws APIException {
+		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		if (userprincipal.getId() > 0) {
+			List<Plumber> response = repo.plumberInviteDetails(userprincipal.getId(),jobId);
 			return ResponseEntity.status(HttpStatus.OK)
 					.body(ResponseBuilder.build("Success", "Customer Job details", response));
 		}
@@ -148,19 +163,19 @@ public class CustomerController {
 		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
 				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person.", null));
 	}
+
 	@PostMapping("/finished-customer")
 	public ResponseEntity<com.plumber.response.APIResponse<Object>> FinishedPlumberJobs(
 			@RequestParam("jobId") int jobId) throws APIException {
 		UserPrincipal userprincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		if (userprincipal.getId() > 0) {
-			 repo.finsihedCustomerJob(userprincipal.getId(),jobId);
+			repo.finsihedCustomerJob(userprincipal.getId(), jobId);
 			return ResponseEntity.status(HttpStatus.OK)
 					.body(ResponseBuilder.build("Success", "Approved Finsihed Job.", null));
 		}
 		return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
 				.body(ResponseBuilder.build("Failure", "You Are Not Authorized Person", null));
 	}
-	
 
 }

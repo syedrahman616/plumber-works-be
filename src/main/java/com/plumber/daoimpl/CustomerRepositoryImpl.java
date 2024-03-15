@@ -145,8 +145,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 			obj.setPostCode(rs.getString("postcode"));
 			obj.setCustomerId(rs.getLong("customer_id"));
 			obj.setPlumberId(rs.getLong("plumber_id"));
-			obj.setCustomerName(rs.getString("tc.first_name") + " " + rs.getString("tc.last_name"));
-			obj.setPlumberName(rs.getString("tp.first_name") + " " + rs.getString("tp.last_name"));
+			obj.setCustomerName(rs.getString("tc.first_name") == null ? ""
+					: rs.getString("tc.first_name") + " " + rs.getString("tc.last_name") == null ? ""
+							: rs.getString("tc.last_name"));
+			obj.setPlumberName(rs.getString("tp.first_name") == null ? ""
+					: rs.getString("tp.first_name") + " " + rs.getString("tp.last_name") == null ? ""
+							: rs.getString("tp.last_name"));
 			obj.setAddress(rs.getString("tj.address"));
 			obj.setJobTitle(rs.getString("job_title"));
 			obj.setDescription(rs.getString("tj.description"));
@@ -267,7 +271,9 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 			obj.setPostCode(rs.getString("postcode"));
 			obj.setCustomerId(rs.getInt("customer_id"));
 			obj.setPlumberId(rs.getInt("plumber_id"));
-			obj.setPlumberName(rs.getString("tp.first_name") + " " + rs.getString("tp.last_name"));
+			obj.setPlumberName(rs.getString("tp.first_name") == null ? ""
+					: rs.getString("tp.first_name") + " " + rs.getString("tp.last_name") == null ? ""
+							: rs.getString("tp.last_name"));
 			obj.setAddress(rs.getString("tj.address"));
 			obj.setJobTitle(rs.getString("job_title"));
 			obj.setDescription(rs.getString("tj.description"));
@@ -305,7 +311,9 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 			obj.setCustomerId(rs.getInt("customer_id"));
 			obj.setPlumberId(rs.getInt("plumber_id"));
 			obj.setPrice(rs.getDouble("tq.price"));
-			obj.setPlumberName(rs.getString("tp.first_name") + " " + rs.getString("tp.last_name"));
+			obj.setPlumberName(rs.getString("tp.first_name") == null ? ""
+					: rs.getString("tp.first_name") + " " + rs.getString("tp.last_name") == null ? ""
+							: rs.getString("tp.last_name"));
 			obj.setAddress(rs.getString("tj.address"));
 			obj.setJobTitle(rs.getString("job_title"));
 			obj.setDescription(rs.getString("tq.description"));

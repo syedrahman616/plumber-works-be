@@ -142,8 +142,12 @@ public class PlumberRepositoryImpl implements PlumberRepository {
 			obj.setPostCode(rs.getString("postcode"));
 			obj.setCustomerId(rs.getLong("customer_id"));
 			obj.setPlumberId(rs.getLong("plumber_id"));
-			obj.setCustomerName(rs.getString("tc.first_name") + " " + rs.getString("tc.last_name"));
-			obj.setPlumberName(rs.getString("tp.first_name") + " " + rs.getString("tp.last_name"));
+			obj.setCustomerName(rs.getString("tc.first_name") == null ? ""
+					: rs.getString("tc.first_name") + " " + rs.getString("tc.last_name") == null ? ""
+							: rs.getString("tc.last_name"));
+			obj.setPlumberName(rs.getString("tp.first_name") == null ? ""
+					: rs.getString("tp.first_name") + " " + rs.getString("tp.last_name") == null ? ""
+							: rs.getString("tp.last_name"));
 			obj.setAddress(rs.getString("tj.address"));
 			obj.setJobTitle(rs.getString("job_title"));
 			obj.setDescription(rs.getString("tj.description"));
@@ -163,9 +167,15 @@ public class PlumberRepositoryImpl implements PlumberRepository {
 	public List<Jobs> allJobs(Long id) throws APIException {
 		Optional<PlumberUser> user = userRepo.findById(id);
 		if (user.get().getUserRole().equalsIgnoreCase("plumber")) {
+			MapSqlParameterSource param = new MapSqlParameterSource();
+			param.addValue("user_id", id);
+			List<Integer> jobId = jdbcTemplate.queryForList(
+					"select job_id from job_quotes where plumber_id=:user_id and accept=0", param, Integer.class);
+			param.addValue("Job_id", jobId);
 			List<Jobs> response = jdbcTemplate.query(
-					"select *,(select accept from job_invite ti where ti.job_id=tj.id and ti.plumber_id=tp.plumber_id) as accepted from job tj left join plumber tp on tj.plumber_id=tp.plumber_id left join customer tc on tj.customer_id=tc.customer_id \r\n"
-							+ "where finished = false and tj.plumber_id=0",
+					"select *,(select accept from job_invite ti where ti.job_id=tj.id and ti.plumber_id=tp.plumber_id) as accepted "
+							+ "from job tj left join plumber tp on tj.plumber_id=tp.plumber_id left join customer tc on tj.customer_id=tc.customer_id "
+							+ "where finished = false and tj.plumber_id=0 and tj.id not in(:job_id) and tj.customer_id>0",
 					new ALLJobMapper());
 //			List<Jobs> job = new ArrayList<>();
 //			response = jobRepo.findAll();
@@ -195,8 +205,12 @@ public class PlumberRepositoryImpl implements PlumberRepository {
 			obj.setPostCode(rs.getString("postcode"));
 			obj.setCustomerId(rs.getLong("customer_id"));
 			obj.setPlumberId(rs.getLong("plumber_id"));
-			obj.setCustomerName(rs.getString("tc.first_name") + " " + rs.getString("tc.last_name"));
-			obj.setPlumberName(rs.getString("tp.first_name") + " " + rs.getString("tp.last_name"));
+			obj.setCustomerName(rs.getString("tc.first_name") == null ? ""
+					: rs.getString("tc.first_name") + " " + rs.getString("tc.last_name") == null ? ""
+							: rs.getString("tc.last_name"));
+			obj.setPlumberName(rs.getString("tp.first_name") == null ? ""
+					: rs.getString("tp.first_name") + " " + rs.getString("tp.last_name") == null ? ""
+							: rs.getString("tp.last_name"));
 			obj.setAddress(rs.getString("tj.address"));
 			obj.setJobTitle(rs.getString("job_title"));
 			obj.setDescription(rs.getString("tj.description"));
@@ -328,7 +342,9 @@ public class PlumberRepositoryImpl implements PlumberRepository {
 			obj.setCustomerId(rs.getInt("customer_id"));
 			obj.setPlumberId(rs.getInt("plumber_id"));
 			obj.setPrice(rs.getDouble("tq.price"));
-			obj.setCustomerName(rs.getString("tc.first_name") + " " + rs.getString("tc.last_name"));
+			obj.setCustomerName(rs.getString("tc.first_name") == null ? ""
+					: rs.getString("tc.first_name") + " " + rs.getString("tc.last_name") == null ? ""
+							: rs.getString("tc.last_name"));
 			obj.setAddress(rs.getString("tj.address"));
 			obj.setJobTitle(rs.getString("job_title"));
 			obj.setDescription(rs.getString("tq.description"));
